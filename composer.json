@@ -1,0 +1,85 @@
+{
+    "name": "kachnitel/dynamic-form-bundle",
+    "description": "Zero-configuration Symfony form generation from Doctrine entity metadata",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "keywords": [
+        "symfony",
+        "symfony-ux",
+        "doctrine",
+        "form",
+        "live-component"
+    ],
+    "authors": [
+        {
+            "name": "Ondrej Vana",
+            "email": "kachnitel@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "doctrine/doctrine-bundle": "^3.0",
+        "doctrine/orm": "^3.5",
+        "symfony/doctrine-bridge": "^6.4|^7.0|^8.0",
+        "symfony/form": "^6.4|^7.0|^8.0",
+        "symfony/framework-bundle": "^6.4|^7.0|^8.0",
+        "symfony/ux-autocomplete": "^3.0",
+        "symfony/ux-live-component": "^2.13",
+        "symfony/validator": "^6.4|^7.0|^8.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.51",
+        "marcocesarato/php-conventional-changelog": "dev-main",
+        "phpmd/phpmd": "^2.12",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
+        "phpunit/phpunit": "^11.0",
+        "symfony/browser-kit": "^7.0|^8.0",
+        "symfony/console": "^6.4|^7.0|^8.0",
+        "symfony/yaml": "^6.4|^7.0|^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kachnitel\\DynamicFormBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Kachnitel\\DynamicFormBundle\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@phpstan",
+            "@phpcs",
+            "@phpunit",
+            "@phpmd"
+        ],
+        "phpstan": "phpstan analyse --memory-limit=1G",
+        "phpunit": "phpunit",
+        "phpunit:debug": [
+            "@php -dxdebug.mode=debug -dxdebug.start_with_request=yes -dxdebug.client_port=${XDEBUG_PORT:-9003} ./vendor/bin/phpunit --colors=always"
+        ],
+        "coverage": "XDEBUG_MODE=coverage phpunit --coverage-text --coverage-html=.coverage",
+        "phpmd": "vendor/bin/phpmd . ansi ./phpmd.ruleset.xml --exclude 'tests/*,vendor/*,var/*,.phpstan/*,.coverage/*'",
+        "phpmd:text": "vendor/bin/phpmd . text ./phpmd.ruleset.xml --exclude 'tests/*,vendor/*,var/*,.phpstan/*,.coverage/*'",
+        "phpcs": "vendor/bin/php-cs-fixer fix --dry-run --diff src",
+        "phpcs:fix": "vendor/bin/php-cs-fixer fix src"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "^6.4|^7.0|^8.0"
+        }
+    },
+    "version": "0.1.0"
+}

@@ -1,0 +1,21 @@
+/vendor/
+composer.lock
+.phpunit.result.cache
+/.phpunit.cache/
+/var/
+/.idea/
+/.vscode/
+*~
+
+# PHPStan
+.phpstan/
+
+# PHP CS Fixer
+.php-cs-fixer.cache
+
+# Code coverage
+/.coverage/
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

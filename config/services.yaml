@@ -1,0 +1,15 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    # Editability
+    Kachnitel\DynamicFormBundle\Editability\:
+        resource: '../src/Editability'
+
+    # Permissive default — override this alias in your own services.yaml to
+    # enforce your own field-editability policy. kachnitel/admin-bundle
+    # overrides it with AdminColumnEditabilityResolver.
+    Kachnitel\DynamicFormBundle\Editability\FieldEditabilityResolverInterface:
+        alias: Kachnitel\DynamicFormBundle\Editability\AlwaysEditableFieldResolver

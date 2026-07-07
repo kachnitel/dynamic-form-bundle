@@ -1,0 +1,9 @@
+parameters:
+    level: 10
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        # PHPMD @SuppressWarnings annotations — PHPStan cannot parse PHPMD syntax.
+        # These tags are intentional and correct for PHPMD; they are not PHPStan directives.
+        - identifier: phpDoc.parseError
