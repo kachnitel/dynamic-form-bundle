@@ -13,3 +13,12 @@ services:
     # overrides it with AdminColumnEditabilityResolver.
     Kachnitel\DynamicFormBundle\Editability\FieldEditabilityResolverInterface:
         alias: Kachnitel\DynamicFormBundle\Editability\AlwaysEditableFieldResolver
+
+    # Form
+    # DynamicFormEditabilityListener is excluded — it's manually instantiated by
+    # DynamicEntityFormType::buildForm() as a form event listener, not a DI-managed
+    # service (mirrors kachnitel/admin-bundle's own services.yaml, which excludes
+    # it from its Form/ resource for the identical reason).
+    Kachnitel\DynamicFormBundle\Form\:
+        resource: '../src/Form'
+        exclude: '../src/Form/DynamicFormEditabilityListener.php'
