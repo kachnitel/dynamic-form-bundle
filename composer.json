@@ -2,7 +2,7 @@
     "name": "kachnitel/dynamic-form-bundle",
     "description": "Zero-configuration Symfony form generation from Doctrine entity metadata",
     "type": "symfony-bundle",
-    "license": "AGPL-3.0",
+    "license": "MPL-2.0",
     "keywords": [
         "symfony",
         "symfony-ux",
