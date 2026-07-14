@@ -1,0 +1,21 @@
+{
+    "generated_at": "2026-07-14 17:52:32",
+    "tests": {
+        "count": 130,
+        "assertions": 383,
+        "status": "failing()"
+    },
+    "coverage": {
+        "lines": 95.88,
+        "percentage": 96,
+        "html_report": ".coverage\/index.html"
+    },
+    "phpstan": {
+        "level": 10,
+        "status": "pass"
+    },
+    "requirements": {
+        "php": ">=8.2",
+        "symfony": "^6.4|^7.0|^8.0"
+    }
+}

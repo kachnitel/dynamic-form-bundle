@@ -1,7 +1,12 @@
 # Kachnitel Dynamic Form Bundle
-
-![PHP](https://img.shields.io/badge/PHP-%3E%3D8.2-777BB4?logo=php&logoColor=white)
-![Symfony](https://img.shields.io/badge/Symfony-%5E6.4%7C%5E7.0%7C%5E8.0-000000?logo=symfony&logoColor=white)
+<!-- BADGES -->
+![Tests](<https://img.shields.io/badge/tests-130%20passed-red>)
+![Coverage](<https://img.shields.io/badge/coverage-96%25-brightgreen>)
+![Assertions](<https://img.shields.io/badge/assertions-383-blue>)
+![PHPStan](<https://img.shields.io/badge/PHPStan-10-brightgreen>)
+![PHP](<https://img.shields.io/badge/PHP-&gt;=8.2-777BB4?logo=php&logoColor=white>)
+![Symfony](<https://img.shields.io/badge/Symfony-^6.4|^7.0|^8.0-000000?logo=symfony&logoColor=white>)
+<!-- BADGES -->
 ![Doctrine ORM](https://img.shields.io/badge/Doctrine%20ORM-%5E3.5-FC6A31?logo=doctrine&logoColor=white)
 ![PHPStan](https://img.shields.io/badge/PHPStan-level%2010-brightgreen)
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
