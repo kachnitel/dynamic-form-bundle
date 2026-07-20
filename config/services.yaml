@@ -22,3 +22,25 @@ services:
     Kachnitel\DynamicFormBundle\Form\:
         resource: '../src/Form'
         exclude: '../src/Form/DynamicFormEditabilityListener.php'
+
+    # Constraint-driven type guessing (see docs/TYPE_GUESSING.md). Wires
+    # Symfony's own form.type_guesser.validator so a #[Assert\Email],
+    # #[Assert\Url], #[Assert\Country], etc. on a Doctrine `string` column
+    # upgrades that field's widget beyond the generic TextType, with zero
+    # configuration required.
+    #
+    # @? is deliberate: an optional reference. If a consuming app somehow has
+    # symfony/validator installed but framework.validation disabled, the
+    # container still compiles and DoctrineFormTypeMapper receives null —
+    # today's guessing-off behaviour — rather than a hard compile failure.
+    #
+    # This does NOT include naming-convention guessing (password/tel/color/
+    # search) — Kachnitel\DynamicFormBundle\Form\TypeGuessing\
+    # ConventionalFieldTypeGuesser ships in this bundle but is intentionally
+    # not wired in here. See docs/TYPE_GUESSING.md "Enabling naming-
+    # convention guessing" for the opt-in recipe, and its "Real-World
+    # Example: kachnitel/admin-bundle" section for how a sibling bundle
+    # enables it for its own users by default.
+    Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper:
+        arguments:
+            $typeGuesser: '@?form.type_guesser.validator'

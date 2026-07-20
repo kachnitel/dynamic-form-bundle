@@ -1,8 +1,8 @@
 # Kachnitel Dynamic Form Bundle
 <!-- BADGES -->
-![Tests](<https://img.shields.io/badge/tests-130%20passed-red>)
+![Tests](<https://img.shields.io/badge/tests-176%20passed-red>)
 ![Coverage](<https://img.shields.io/badge/coverage-96%25-brightgreen>)
-![Assertions](<https://img.shields.io/badge/assertions-383-blue>)
+![Assertions](<https://img.shields.io/badge/assertions-483-blue>)
 ![PHPStan](<https://img.shields.io/badge/PHPStan-10-brightgreen>)
 ![PHP](<https://img.shields.io/badge/PHP-&gt;=8.2-777BB4?logo=php&logoColor=white>)
 ![Symfony](<https://img.shields.io/badge/Symfony-^6.4|^7.0|^8.0-000000?logo=symfony&logoColor=white>)
@@ -51,25 +51,28 @@ $form = $this->createForm(DynamicEntityFormType::class, $product, [
 
 ### 3. That's it
 
-Every scalar field and every owning-side association on `Product` gets a form field, with a type-appropriate widget, validation, and nullability handling all derived straight from Doctrine metadata.
+Every scalar field and every owning-side association on `Product` gets a form field, with a type-appropriate widget, validation, and nullability handling all derived straight from Doctrine metadata. Fields whose Doctrine `string` column carries a matching validator constraint (`#[Assert\Email]`, `#[Assert\Url]`, ...) are automatically upgraded to a more specific widget — see [Type Guessing](docs/TYPE_GUESSING.md).
 
 ## How It Works
 
-Three collaborating pieces, one job each:
+Four collaborating pieces, one job each:
 
 | Class | Responsibility |
 |---|---|
 | `DoctrineFormTypeMapper` | Maps a single Doctrine field/association mapping to a Symfony form field config (type + options) |
 | `DynamicEntityFormType` | Walks an entity's metadata, calls the mapper for each field/association, and decides what to include |
-| `FieldEditabilityResolverInterface` | The one extension point — decides whether a given property should be in the form at all |
+| `FieldEditabilityResolverInterface` | The first extension point — decides whether a given property should be in the form at all |
+| `FormTypeGuesserInterface` (Symfony's own) | The second extension point — decides whether a Doctrine `string` field should use a more specific type than the generic `TextType`, based on validator constraints and/or naming convention |
 
 `DynamicEntityFormType` itself has no knowledge of attributes, expressions, or permissions — every inclusion/exclusion decision beyond Doctrine's own structure (the identifier field, unsupported types) is delegated to the injected `FieldEditabilityResolverInterface`. The bundle ships a permissive default that includes everything; consumers override the service alias to plug in their own policy. See [Editability](docs/EDITABILITY.md).
+
+Similarly, `DoctrineFormTypeMapper` has no hardcoded opinion about which `string` fields deserve a more specific widget beyond what Symfony's own `form.type_guesser.validator` already provides out of the box — see [Type Guessing](docs/TYPE_GUESSING.md).
 
 ## Supported Field Types
 
 | Doctrine type | Symfony form type |
 |---|---|
-| `string`, `text` | `TextType` / `TextareaType` |
+| `string`, `text` | `TextType` / `TextareaType` (upgraded automatically for some `string` fields — see [Type Guessing](docs/TYPE_GUESSING.md)) |
 | `integer`, `smallint`, `bigint` | `IntegerType` |
 | `decimal`, `float` | `NumberType` |
 | `boolean` | `CheckboxType` |
@@ -104,7 +107,11 @@ interface FieldEditabilityResolverInterface
 
 The default binding, `AlwaysEditableFieldResolver`, includes everything unconditionally — matching the bundle's zero-config philosophy out of the box. Override the service alias in your own `services.yaml` to enforce a real policy (attribute-driven, role-driven, whatever fits your app). See [Editability](docs/EDITABILITY.md) for the full contract and a worked example.
 
-`kachnitel/admin-bundle` is a real-world consumer: it binds this interface to `AdminColumnEditabilityResolver`, which reads the `#[AdminColumn(editable: ...)]` attribute — bound via a compiler pass rather than a plain alias, since it needs its override to win regardless of bundle registration order. Worth a look if you're solving the same "my default has to beat a sibling package's default" problem.
+`kachnitel/admin-bundle` is a real-world consumer: it binds this interface to `AdminColumnEditabilityResolver`, which reads the `#[AdminColumn(editable: ...)]` attribute — bound via a compiler pass rather than a plain alias, since it needs its override to win regardless of bundle registration order. Worth a look if you're solving the same "my default has to beat a sibling package's default" problem — the exact same pattern is how it also opts into naming-convention type guessing; see [Type Guessing](docs/TYPE_GUESSING.md#real-world-example-kachniteladmin-bundle).
+
+## Controlling Field Widgets
+
+A Doctrine `string` field with a matching validator constraint (`#[Assert\Email]`, `#[Assert\Url]`, `#[Assert\Country]`, ...) is upgraded from `TextType` to a more specific widget automatically, via Symfony's own `form.type_guesser.validator`. This bundle also ships an optional, opt-in naming-convention guesser (`ConventionalFieldTypeGuesser`, covering `tel`/`color`/`search`/`email`/`url`) for the cases no validator constraint can express. See [Type Guessing](docs/TYPE_GUESSING.md) for the full mechanism, how to enable naming-convention guessing, and how to write your own guesser.
 
 ## Documentation
 
@@ -113,6 +120,7 @@ The default binding, `AlwaysEditableFieldResolver`, includes everything uncondit
 | [Field Mapping](docs/FIELD_MAPPING.md) | Full Doctrine → Symfony type table, nullability rules, `empty_data` behaviour, `RequiredValueTransformer` |
 | [Associations](docs/ASSOCIATIONS.md) | Collection handling, `cascade`/`orphanRemoval` requirements, auto-skip rules, recursion prevention, troubleshooting |
 | [Editability](docs/EDITABILITY.md) | The `FieldEditabilityResolverInterface` extension point, with a worked custom-resolver example |
+| [Type Guessing](docs/TYPE_GUESSING.md) | Constraint-driven and naming-convention widget upgrades, the `FormTypeGuesserInterface` extension point, and the `kachnitel/admin-bundle` integration recipe |
 
 ## Development
 
@@ -133,6 +141,8 @@ vendor/bin/phpunit --group editability
 vendor/bin/phpunit --group form-transformers
 vendor/bin/phpunit --group form-exceptions
 vendor/bin/phpunit --group inline-add
+vendor/bin/phpunit --group type-guessing
+vendor/bin/phpunit --group integration
 ```
 
 ## Requirements
@@ -142,6 +152,7 @@ vendor/bin/phpunit --group inline-add
 - Doctrine ORM 3.5+, `doctrine/doctrine-bundle` ^3.0
 - Symfony UX Live Component ^2.13 (for `OneToMany` → `LiveCollectionType`)
 - Symfony UX Autocomplete ^3.0 (for association `EntityType` fields)
+- Symfony Intl (suggested; required only if any entity uses `#[Assert\Country]`, `#[Assert\Language]`, `#[Assert\Currency]`, or `#[Assert\Locale]` — see [Type Guessing](docs/TYPE_GUESSING.md))
 
 ## License
 

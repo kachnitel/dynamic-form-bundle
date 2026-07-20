@@ -6,6 +6,7 @@ composer.lock
 /.idea/
 /.vscode/
 *~
+.codacy
 
 # PHPStan
 .phpstan/
@@ -16,6 +17,8 @@ composer.lock
 # Code coverage
 /.coverage/
 
+# Rector
+rector.php
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md

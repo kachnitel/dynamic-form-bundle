@@ -32,6 +32,8 @@ How `DoctrineFormTypeMapper` turns a single Doctrine field mapping into a Symfon
 
 Associations (`ManyToOne`, `OneToOne`, `ManyToMany`, `OneToMany`) are covered separately in [Associations](ASSOCIATIONS.md).
 
+> **The `string` row isn't always the final answer.** Before any of the rules below run, `getFieldConfig()` first asks an injected `FormTypeGuesserInterface` whether a `string` column deserves something more specific than `TextType` — a matching `#[Assert\Email]`/`#[Assert\Url]`/etc. constraint upgrades it automatically, and an optional naming-convention guesser can cover a few more cases (`tel`, `color`, `search`). Everything below this point — nullability, `empty_data`, required-field handling — still applies to whatever type comes out of that step; guessing only changes *which* type is built, not how its options are derived. See [Type Guessing](TYPE_GUESSING.md) for the full mechanism.
+
 ## Unsupported Types
 
 `json`, `array`, `simple_array`, `object`, `blob`, `binary` have no sensible Symfony form widget. `getFieldConfig()` returns `null` for these, and `DynamicEntityFormType` skips them silently — no error, no field.
@@ -90,12 +92,16 @@ The submit-time flow for a blank required field:
 
 Without that check, a property with its own `#[Assert\NotBlank]` would get a second, differently-worded constraint stacked on top, producing two separate error messages for the same blank field ("This value should not be blank." from the entity's own constraint, "Name is required." from the mapper). If the property has no constraint of its own, the mapper's `NotBlank` remains the default — plenty of entities are happy to let the bundle provide that behaviour rather than declaring it themselves.
 
-This check only applies to string/text. Guarded types never reach their own `constraints` option once `RequiredValueTransformer` marks the field not-synchronized — `FormValidator` skips it in that case — so there's no equivalent duplication risk to check for there.
+This check only applies to string/text. Guarded types (int/decimal/date/time/enum) never reach their own `constraints` option once `RequiredValueTransformer` marks the field not-synchronized — `FormValidator` skips it in that case — so there's no equivalent duplication risk to check for there.
 
 ## Enum Fields
 
 A field maps to `EnumType` when Doctrine's field mapping carries an `enumType` (i.e. `#[ORM\Column(enumType: Status::class)]`). `choice_label` resolves per-case via `displayValue()` if the enum defines it, falling back to `->name` otherwise. `placeholder` is `''` when nullable, `false` (no placeholder) when required.
 
+Enum fields are resolved before any type guessing runs — see [Type Guessing](TYPE_GUESSING.md#why-scoped-to-doctrine-string-columns) — so an enum-backed column is never affected by a validator constraint or naming convention, even a coincidentally matching one.
+
 ## Date / Time `input` Option
 
 `DateType`/`DateTimeType`/`TimeType`'s `input` option controls what PHP type `reverseTransform()` produces. Without setting it, the default (`'datetime'`) throws a `TypeError` when writing a `\DateTime` onto a `\DateTimeImmutable`-typed property. The mapper derives `input` straight from the Doctrine type suffix — `_immutable` → `datetime_immutable`, otherwise `datetime` — so mutable and immutable Doctrine types always land on the matching PHP class.
+
+This derivation only ever runs for actual Doctrine `date`/`datetime`/`time` **columns**. A `string` column carrying `#[Assert\Date]` (see [Type Guessing](TYPE_GUESSING.md#layer-1-constraint-driven-guessing-the-default)) gets `input: 'string'` instead, from the guesser — correctly, since there's no Doctrine-derived PHP date type to match in that case.
