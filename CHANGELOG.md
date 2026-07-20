@@ -4,7 +4,16 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
-## [0.0.1](https://github.com/kachnitel/dynamic-form-bundle/compare/0.0.0...v0.0.1) (2026-07-14)
+## [0.0.2](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.1...v0.0.2) (2026-07-20)
+
+### Features
+
+* Guess Symfony form types for Doctrine string fields ([2b94e7](https://github.com/kachnitel/dynamic-form-bundle/commit/2b94e7c7d9b37d775a662d46d3755458e96ec84b))
+
+
+---
+
+## [0.0.1](https://github.com/kachnitel/dynamic-form-bundle/compare/71f18b316c15ac66ea76b5d033ec72e8d0072c22...v0.0.1) (2026-07-14)
 
 ### Features
 
