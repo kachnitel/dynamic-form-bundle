@@ -11,6 +11,7 @@ use Kachnitel\DynamicFormBundle\Form\TypeGuessing\ConventionalFieldTypeGuesser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
@@ -45,6 +46,7 @@ use Symfony\Component\Validator\Mapping\Loader\AttributeLoader;
  * @group integration
  */
 #[CoversClass(DoctrineFormTypeMapper::class)]
+#[UsesClass(ConventionalFieldTypeGuesser::class)]
 #[Group('type-guessing')]
 #[Group('integration')]
 class DoctrineFormTypeMapperValidatorGuesserTest extends TestCase

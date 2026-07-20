@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping\OneToManyAssociationMapping;
 use Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\UX\LiveComponent\Form\Type\LiveCollectionType;
@@ -38,7 +39,7 @@ class DoctrineFormTypeMapperInlineAddAttrTest extends TestCase
 
     // ── Single-valued (ManyToOne / OneToOne owning) ────────────────────────────
 
-    /** @test */
+    #[Test]
     public function singleValuedAssociationIncludesAdminEntityClassAttr(): void
     {
         $this->metadata->method('hasAssociation')->with('category')->willReturn(true);
@@ -58,7 +59,7 @@ class DoctrineFormTypeMapperInlineAddAttrTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function singleValuedAssociationAttrDoesNotAffectOtherOptions(): void
     {
         $this->metadata->method('hasAssociation')->with('category')->willReturn(true);
@@ -77,7 +78,7 @@ class DoctrineFormTypeMapperInlineAddAttrTest extends TestCase
 
     // ── ManyToMany (owning side) ───────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function manyToManyAssociationIncludesAdminEntityClassAttr(): void
     {
         $mapping = new ManyToManyOwningSideMapping(
@@ -106,7 +107,7 @@ class DoctrineFormTypeMapperInlineAddAttrTest extends TestCase
 
     // ── OneToMany → LiveCollectionType (no inline-add button) ─────────────────
 
-    /** @test */
+    #[Test]
     public function oneToManyDoesNotIncludeAdminEntityClassAttr(): void
     {
         $mapping          = new OneToManyAssociationMapping(

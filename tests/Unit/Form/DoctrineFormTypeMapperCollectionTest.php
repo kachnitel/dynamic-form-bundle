@@ -11,6 +11,7 @@ use Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper;
 use Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -39,7 +40,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
 
     // ── ManyToMany → EntityType with multiple: true ────────────────────────────
 
-    /** @test */
+    #[Test]
     public function manyToManyAssociationReturnsEntityTypeWithMultiple(): void
     {
         $mapping = new ManyToManyOwningSideMapping('tags', 'App\Entity\Product', 'App\Entity\Tag');
@@ -58,7 +59,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
         $this->assertSame('App\Entity\Tag', $config['options']['class']);
     }
 
-    /** @test */
+    #[Test]
     public function manyToManyAssociationIsNotRequired(): void
     {
         $mapping = new ManyToManyOwningSideMapping('tags', 'App\Entity\Product', 'App\Entity\Tag');
@@ -78,9 +79,8 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
     /**
      * ManyToMany associations must use UX Autocomplete for search-as-you-type.
      * symfony/ux-autocomplete is a hard bundle dependency, so this is always available.
-     *
-     * @test
      */
+    #[Test]
     public function manyToManyAssociationHasAutocompleteEnabled(): void
     {
         $mapping = new ManyToManyOwningSideMapping('tags', 'App\Entity\Product', 'App\Entity\Tag');
@@ -102,7 +102,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
 
     // ── OneToMany → LiveCollectionType ─────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function oneToManyAssociationReturnsLiveCollectionType(): void
     {
         $mapping = new OneToManyAssociationMapping('items', 'App\Entity\Order', 'App\Entity\OrderItem');
@@ -120,7 +120,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
         $this->assertSame(LiveCollectionType::class, $config['type']);
     }
 
-    /** @test */
+    #[Test]
     public function oneToManyUsesRecursiveDynamicEntityFormTypeAsEntryType(): void
     {
         $mapping = new OneToManyAssociationMapping('items', 'App\Entity\Order', 'App\Entity\OrderItem');
@@ -138,7 +138,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
         $this->assertSame(DynamicEntityFormType::class, $config['options']['entry_type']);
     }
 
-    /** @test */
+    #[Test]
     public function oneToManyPassesTargetClassInEntryOptions(): void
     {
         $mapping = new OneToManyAssociationMapping('items', 'App\Entity\Order', 'App\Entity\OrderItem');
@@ -160,7 +160,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
         $this->assertSame('App\Entity\OrderItem', $entryOptions['data_class']);
     }
 
-    /** @test */
+    #[Test]
     public function oneToManyEntryOptionsMarkAsChildForm(): void
     {
         $mapping = new OneToManyAssociationMapping('items', 'App\Entity\Order', 'App\Entity\OrderItem');
@@ -180,7 +180,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
         $this->assertFalse($config['options']['entry_options']['is_root']);
     }
 
-    /** @test */
+    #[Test]
     public function oneToManyAllowsAddAndDelete(): void
     {
         $mapping = new OneToManyAssociationMapping('items', 'App\Entity\Order', 'App\Entity\OrderItem');
@@ -201,7 +201,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
 
     // ── Single-valued associations — autocomplete ──────────────────────────────
 
-    /** @test */
+    #[Test]
     public function singleValuedAssociationStillReturnsEntityType(): void
     {
         $this->metadata->method('hasAssociation')->with('category')->willReturn(true);
@@ -218,9 +218,8 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
 
     /**
      * Single-valued associations (ManyToOne / OneToOne) must use UX Autocomplete.
-     *
-     * @test
      */
+    #[Test]
     public function singleValuedAssociationHasAutocompleteEnabled(): void
     {
         $this->metadata->method('hasAssociation')->with('category')->willReturn(true);
@@ -237,7 +236,7 @@ class DoctrineFormTypeMapperCollectionTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function nonExistentAssociationReturnsNull(): void
     {
         $this->metadata->method('hasAssociation')->with('nonexistent')->willReturn(false);

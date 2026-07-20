@@ -12,6 +12,7 @@ use Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType;
 use Kachnitel\DynamicFormBundle\Form\DynamicFormEditabilityListener;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -86,8 +87,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
 
     // ── is_root: true (default) — collections ARE included ────────────────────
 
-    /** @test */
-    public function manyToManyIsIncludedInRootForm(): void
+    #[Test]
+    public function testManyToManyIsIncludedInRootForm(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['tags']);
@@ -113,8 +114,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function oneToManyIsIncludedInRootForm(): void
+    #[Test]
+    public function testOneToManyIsIncludedInRootForm(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['items']);
@@ -147,8 +148,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
 
     // ── is_root: false (child form) — collections are SKIPPED ─────────────────
 
-    /** @test */
-    public function manyToManyIsSkippedInChildForm(): void
+    #[Test]
+    public function testManyToManyIsSkippedInChildForm(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['tags']);
@@ -166,8 +167,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function oneToManyIsSkippedInChildForm(): void
+    #[Test]
+    public function testOneToManyIsSkippedInChildForm(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['items']);
@@ -184,8 +185,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function singleValuedAssociationIsIncludedInChildForm(): void
+    #[Test]
+    public function testSingleValuedAssociationIsIncludedInChildForm(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['category']);
@@ -213,8 +214,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
 
     // ── resolver-blocked collection is skipped ─────────────────────────────────
 
-    /** @test */
-    public function collectionBlockedByResolverIsSkippedInRootForm(): void
+    #[Test]
+    public function testCollectionBlockedByResolverIsSkippedInRootForm(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['hiddenTags']);
@@ -231,8 +232,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function collectionIsIncludedByDefaultWhenNothingBlocksIt(): void
+    #[Test]
+    public function testCollectionIsIncludedByDefaultWhenNothingBlocksIt(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['tags']);
@@ -258,8 +259,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
 
     // ── configureOptions registers is_root ────────────────────────────────────
 
-    /** @test */
-    public function isRootOptionDefaultsToTrue(): void
+    #[Test]
+    public function testIsRootOptionDefaultsToTrue(): void
     {
         $resolver = new OptionsResolver();
 
@@ -271,8 +272,8 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
         $this->assertTrue($resolved['is_root']);
     }
 
-    /** @test */
-    public function isRootOptionCanBeSetToFalse(): void
+    #[Test]
+    public function testIsRootOptionCanBeSetToFalse(): void
     {
         $resolver = new OptionsResolver();
 
@@ -288,10 +289,9 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
 
     /**
      * OneToOne inverse-side associations (mappedBy set) must be skipped automatically.
-     *
-     * @test
      */
-    public function inverseSideOneToOneAssociationIsSkippedAutomatically(): void
+    #[Test]
+    public function testInverseSideOneToOneAssociationIsSkippedAutomatically(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['profile']);
@@ -319,10 +319,9 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
 
     /**
      * ManyToMany inverse-side (mappedBy set) must be skipped automatically.
-     *
-     * @test
      */
-    public function inverseSideManyToManyIsSkippedAutomatically(): void
+    #[Test]
+    public function testInverseSideManyToManyIsSkippedAutomatically(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['products']);
@@ -351,10 +350,9 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
     /**
      * ManyToOne without inversedBy (standalone relationship, e.g. Product → Category)
      * must always be included — it is not a parent back-reference.
-     *
-     * @test
      */
-    public function owningSideManyToOneIsIncluded(): void
+    #[Test]
+    public function testOwningSideManyToOneIsIncluded(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['category']);
@@ -389,10 +387,9 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
 
     /**
      * ManyToMany owning side (inversedBy set, mappedBy absent) must be included.
-     *
-     * @test
      */
-    public function owningSideManyToManyIsIncluded(): void
+    #[Test]
+    public function testOwningSideManyToManyIsIncluded(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['tags']);
@@ -428,10 +425,9 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
      * An inverse-side association the resolver explicitly overrides must be
      * included despite having mappedBy set — explicit opt-in overrides
      * auto-detection.
-     *
-     * @test
      */
-    public function inverseSideWithExplicitOverrideIsIncluded(): void
+    #[Test]
+    public function testInverseSideWithExplicitOverrideIsIncluded(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['userInverse']);
@@ -474,10 +470,9 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
      * Concrete example: OrderLineItem::$order (ManyToOne, inversedBy: 'lineItems')
      * should never appear on the OrderLineItem form — the parent form manages the
      * relationship.
-     *
-     * @test
      */
-    public function manyToOneWithInversedByIsSkippedAutomatically(): void
+    #[Test]
+    public function testManyToOneWithInversedByIsSkippedAutomatically(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['order']);
@@ -507,10 +502,9 @@ class DynamicEntityFormTypeCollectionTest extends TestCase
     /**
      * ManyToOne with inversedBy AND an explicit resolver override must be
      * included — explicit opt-in overrides the automatic back-reference detection.
-     *
-     * @test
      */
-    public function manyToOneWithInversedByAndExplicitOverrideIsIncluded(): void
+    #[Test]
+    public function testManyToOneWithInversedByAndExplicitOverrideIsIncluded(): void
     {
         $this->metadata->method('getFieldNames')->willReturn([]);
         $this->metadata->method('getAssociationNames')->willReturn(['orderExplicit']);
