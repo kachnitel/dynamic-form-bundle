@@ -12,6 +12,7 @@ use Kachnitel\DynamicFormBundle\Form\DataTransformer\RequiredValueTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -36,15 +37,20 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * child entry inside a LiveCollectionType. Child forms skip collection associations
  * to prevent infinite recursion in bidirectional relationships.
  *
- * The form type does NOT set `data_class` — that is the caller's responsibility.
- * The consuming LiveComponent (e.g. kachnitel/admin-bundle's AdminEntityForm) passes
- * `data_class` explicitly via form options so the form is bound to the correct entity
- * instance.
+ * `data_class` defaults to `entity_class` via a lazy OptionsResolver default — the
+ * overwhelmingly common case is binding the form straight to the entity being
+ * introspected, so callers no longer type the same class-string twice. Pass
+ * `data_class` explicitly to override, including an explicit `null` for an unmapped
+ * form bound to a plain array or DTO instead of the entity directly — an explicit
+ * value (even null) always wins over the lazy default; see configureOptions().
  *
  * Required option:
  *   entity_class (string) — fully-qualified class name of the entity to build for
  *
  * Optional option:
+ *   data_class (string|null, default: entity_class) — the class submitted values are
+ *     mapped onto. Pass explicitly (including null) to bind to something other than
+ *     entity_class itself.
  *   is_root (bool, default: true) — set to false for child forms inside LiveCollectionType
  *   entity_instance (object|null, default: null) — the actual entity being edited/created.
  *     Passed straight through to FieldEditabilityResolverInterface, so implementations
@@ -108,13 +114,22 @@ class DynamicEntityFormType extends AbstractType
         $resolver->setRequired('entity_class');
         $resolver->setAllowedTypes('entity_class', 'string');
 
+        // Lazy default: only evaluated when the caller omits data_class entirely.
+        // An explicit value — including an explicit null, for an unmapped form bound
+        // to a plain array/DTO instead of the entity itself — always wins and this
+        // closure never runs. See the class docblock for the full rationale.
+        $resolver->setDefault('data_class', static function (Options $options): string {
+            /** @var string $entityClass */
+            $entityClass = $options['entity_class'];
+
+            return $entityClass;
+        });
+
         $resolver->setDefault('is_root', true);
         $resolver->setAllowedTypes('is_root', 'bool');
 
         $resolver->setDefault('entity_instance', null);
         $resolver->setAllowedTypes('entity_instance', ['object', 'null']);
-
-        // data_class is intentionally NOT set here — the caller sets it
     }
 
     // ── Private helpers ────────────────────────────────────────────────────────

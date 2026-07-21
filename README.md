@@ -1,8 +1,8 @@
 # Kachnitel Dynamic Form Bundle
 <!-- BADGES -->
-![Tests](<https://img.shields.io/badge/tests-176%20passed-brightgreen>)
+![Tests](<https://img.shields.io/badge/tests-178%20passed-brightgreen>)
 ![Coverage](<https://img.shields.io/badge/coverage-96%25-brightgreen>)
-![Assertions](<https://img.shields.io/badge/assertions-483-blue>)
+![Assertions](<https://img.shields.io/badge/assertions-485-blue>)
 ![PHPStan](<https://img.shields.io/badge/PHPStan-10-brightgreen>)
 ![PHP](<https://img.shields.io/badge/PHP-&gt;=8.2-777BB4?logo=php&logoColor=white>)
 ![Symfony](<https://img.shields.io/badge/Symfony-^6.4|^7.0|^8.0-000000?logo=symfony&logoColor=white>)
@@ -13,9 +13,7 @@
 
 Zero-configuration Symfony form generation from Doctrine entity metadata. Point `DynamicEntityFormType` at an entity and get a working create/edit form — scalar fields, associations, and [Symfony UX](https://symfony.com/bundles/ux-live-component/current/index.html) LiveComponent collections included — without writing a `FormType` class.
 
-Extracted from [kachnitel/admin-bundle](https://github.com/kachnitel/FrdAdminBundle), where it now serves as the auto-form engine behind the generic CRUD controller. It has no dependency on admin-bundle and is usable standalone in any Symfony + Doctrine application.
-
-> **License note:** this package is **MPL-2.0**, not MIT like admin-bundle. It's a file-level copyleft license — compatible with proprietary and closed-source use — see [License](#license) below for what it actually requires.
+Extracted from [kachnitel/admin-bundle](https://github.com/kachnitel/FrdAdminBundle), where it serves as the auto-form engine behind the generic CRUD controller. Usable standalone in any Symfony + Doctrine application. **License: MPL-2.0** (file-level copyleft, compatible with proprietary use — see [License](#license)).
 
 ## Quick Start
 
@@ -25,16 +23,13 @@ Extracted from [kachnitel/admin-bundle](https://github.com/kachnitel/FrdAdminBun
 composer require kachnitel/dynamic-form-bundle
 ```
 
-Register the bundle in `config/bundles.php`:
+Register in `config/bundles.php`:
 
 ```php
-return [
-    // ...
-    Kachnitel\DynamicFormBundle\KachnitelDynamicFormBundle::class => ['all' => true],
-];
+Kachnitel\DynamicFormBundle\KachnitelDynamicFormBundle::class => ['all' => true],
 ```
 
-No further configuration — the bundle has no config tree yet.
+No further configuration — the bundle has no config tree.
 
 ### 2. Build a form
 
@@ -43,86 +38,120 @@ use Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType;
 
 $form = $this->createForm(DynamicEntityFormType::class, $product, [
     'entity_class' => Product::class,
-    'data_class'   => Product::class,
 ]);
 ```
 
-`entity_class` is a required option. `data_class` isn't set by the form type itself — pass it yourself as shown, so submitted values land on the right entity; leaving it out means Symfony has no `PropertyAccessor` target to write to.
+`entity_class` is the only required option. `data_class` defaults to `entity_class`, so binding the form straight to `Product` needs nothing further — pass `data_class` explicitly only when it should differ (a DTO, or `null` for an unmapped form). See [Form Options](#form-options) for all options.
 
 ### 3. That's it
 
-Every scalar field and every owning-side association on `Product` gets a form field, with a type-appropriate widget, validation, and nullability handling all derived straight from Doctrine metadata. Fields whose Doctrine `string` column carries a matching validator constraint (`#[Assert\Email]`, `#[Assert\Url]`, ...) are automatically upgraded to a more specific widget — see [Type Guessing](docs/TYPE_GUESSING.md).
+Every non-identifier scalar field and owning-side association on `Product` gets a form field, with type-appropriate widgets, validation, and nullability handling derived from Doctrine metadata. Doctrine `string` fields with a matching validator constraint (`#[Assert\Email]`, `#[Assert\Url]`, …) are upgraded to the corresponding widget automatically — see [Type Guessing](docs/TYPE_GUESSING.md).
 
-## How It Works
+## Form Options
 
-Four collaborating pieces, one job each:
-
-| Class | Responsibility |
-|---|---|
-| `DoctrineFormTypeMapper` | Maps a single Doctrine field/association mapping to a Symfony form field config (type + options) |
-| `DynamicEntityFormType` | Walks an entity's metadata, calls the mapper for each field/association, and decides what to include |
-| `FieldEditabilityResolverInterface` | The first extension point — decides whether a given property should be in the form at all |
-| `FormTypeGuesserInterface` (Symfony's own) | The second extension point — decides whether a Doctrine `string` field should use a more specific type than the generic `TextType`, based on validator constraints and/or naming convention |
-
-`DynamicEntityFormType` itself has no knowledge of attributes, expressions, or permissions — every inclusion/exclusion decision beyond Doctrine's own structure (the identifier field, unsupported types) is delegated to the injected `FieldEditabilityResolverInterface`. The bundle ships a permissive default that includes everything; consumers override the service alias to plug in their own policy. See [Editability](docs/EDITABILITY.md).
-
-Similarly, `DoctrineFormTypeMapper` has no hardcoded opinion about which `string` fields deserve a more specific widget beyond what Symfony's own `form.type_guesser.validator` already provides out of the box — see [Type Guessing](docs/TYPE_GUESSING.md).
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `entity_class` | `string` | **required** | Fully-qualified entity class name to introspect |
+| `data_class` | `string\|null` | `entity_class` | The class submitted values are mapped onto. Lazily defaults to `entity_class` — only evaluated when omitted entirely. Pass explicitly to bind elsewhere, including `null` for an unmapped form bound to a plain array/DTO |
+| `is_root` | `bool` | `true` | Set `false` for child forms inside `LiveCollectionType` to prevent collection associations from being re-added (avoids infinite recursion in bidirectional relationships) |
+| `entity_instance` | `object\|null` | `null` | The entity being edited. Forwarded to `FieldEditabilityResolverInterface` for per-row editability checks; pass a fresh `new Entity()` for create forms if your resolver needs an instance |
 
 ## Supported Field Types
 
-| Doctrine type | Symfony form type |
-|---|---|
-| `string`, `text` | `TextType` / `TextareaType` (upgraded automatically for some `string` fields — see [Type Guessing](docs/TYPE_GUESSING.md)) |
-| `integer`, `smallint`, `bigint` | `IntegerType` |
-| `decimal`, `float` | `NumberType` |
-| `boolean` | `CheckboxType` |
-| `date`, `date_immutable` | `DateType` (single_text) |
-| `datetime`, `datetimetz`, `datetime_immutable`, `datetimetz_immutable` | `DateTimeType` (single_text) |
-| `time`, `time_immutable` | `TimeType` (single_text) |
-| Backed PHP enum | `EnumType` |
+| Doctrine type | Form type | Widget options |
+|---|---|---|
+| `string` | `TextType` | Upgraded by constraint or naming convention — see [Type Guessing](docs/TYPE_GUESSING.md) |
+| `text` | `TextareaType` | |
+| `integer`, `smallint`, `bigint` | `IntegerType` | |
+| `decimal`, `float` | `NumberType` | `html5: true` |
+| `boolean` | `CheckboxType` | Always `required: false` |
+| `date`, `date_immutable` | `DateType` | `widget: single_text` |
+| `datetime`, `datetimetz`, `datetime_immutable`, `datetimetz_immutable` | `DateTimeType` | `widget: single_text` |
+| `time`, `time_immutable` | `TimeType` | `widget: single_text` |
+| Backed PHP enum (via `enumType`) | `EnumType` | |
 
-`json`, `array`, `simple_array`, `object`, `blob`, `binary` have no sensible form widget and are silently skipped. Nullability, `empty_data`, and required-field validation all have non-obvious behaviour driven by real Symfony transformer quirks — see [Field Mapping](docs/FIELD_MAPPING.md) for the full story.
+`json`, `array`, `simple_array`, `object`, `blob`, `binary` are silently skipped — no field, no error.
+
+Nullability, `empty_data`, and required-field validation have non-obvious behaviour driven by Symfony transformer quirks. See [Field Mapping](docs/FIELD_MAPPING.md) for the full story.
 
 ## Associations
 
-| Doctrine type | Form field | UI |
+| Doctrine type | Form type | UI |
 |---|---|---|
 | `ManyToOne`, `OneToOne` (owning) | `EntityType` | Autocomplete dropdown |
 | `ManyToMany` (owning side) | `EntityType` with `multiple: true` | Autocomplete multi-select |
 | `OneToMany` | `LiveCollectionType` with recursive `DynamicEntityFormType` | Add / remove rows |
 
-Inverse-side associations and parent back-references are skipped automatically to avoid confusing, redundant controls — with an opt-in escape hatch. Full detail, including the `cascade`/`orphanRemoval`/adder-remover requirements for `OneToMany`, is in [Associations](docs/ASSOCIATIONS.md).
+Two categories of association are **automatically skipped** — re-include them by having `FieldEditabilityResolverInterface::isExplicitOverride()` return `true` for that property:
+
+- Inverse-side associations (`mappedBy` set) — except `OneToMany` in root forms, which is always kept
+- Single-valued associations with `inversedBy` set (a ManyToOne/OneToOne owning side pointing back at a parent's collection)
+
+> **Default behaviour with `AlwaysEditableFieldResolver`:** both `canEdit()` and `isExplicitOverride()` return `true` unconditionally, so all associations — including the normally-skipped categories above — are included by default. The auto-skip rules only take effect once you bind a resolver that returns `false` for `isExplicitOverride()` on associations it does not explicitly opt back in.
+
+See [Associations](docs/ASSOCIATIONS.md) for the full auto-skip table, `OneToMany` `cascade`/`orphanRemoval`/adder-remover requirements, and troubleshooting.
 
 ## Controlling Field Inclusion
-
-Every field/association inclusion decision — beyond the identifier field and unsupported Doctrine types, which are always handled internally — goes through one interface:
 
 ```php
 interface FieldEditabilityResolverInterface
 {
+    // General include/exclude gate. $entity is null when building a "new entity" form
+    // or before LiveCollectionType binds a row — treat null as "include provisionally"
+    // (DynamicFormEditabilityListener re-checks on PRE_SET_DATA once a real instance exists).
     public function canEdit(string $entityClass, string $property, ?object $entity = null): bool;
+
+    // Opt back in to a structurally auto-skipped association (inverse side or parent back-reference).
+    // Must return true ONLY for an explicit per-property override, never by entity-level default —
+    // a permissive entity-wide default must not silently pull every back-reference into the form.
     public function isExplicitOverride(string $entityClass, string $property, ?object $entity = null): bool;
 }
 ```
 
-The default binding, `AlwaysEditableFieldResolver`, includes everything unconditionally — matching the bundle's zero-config philosophy out of the box. Override the service alias in your own `services.yaml` to enforce a real policy (attribute-driven, role-driven, whatever fits your app). See [Editability](docs/EDITABILITY.md) for the full contract and a worked example.
+Default binding: `AlwaysEditableFieldResolver` — both methods return `true`. Override in `services.yaml`:
 
-`kachnitel/admin-bundle` is a real-world consumer: it binds this interface to `AdminColumnEditabilityResolver`, which reads the `#[AdminColumn(editable: ...)]` attribute — bound via a compiler pass rather than a plain alias, since it needs its override to win regardless of bundle registration order. Worth a look if you're solving the same "my default has to beat a sibling package's default" problem — the exact same pattern is how it also opts into naming-convention type guessing; see [Type Guessing](docs/TYPE_GUESSING.md#real-world-example-kachniteladmin-bundle).
+```yaml
+Kachnitel\DynamicFormBundle\Editability\FieldEditabilityResolverInterface:
+    alias: App\Form\MyFieldEditabilityResolver
+```
+
+See [Editability](docs/EDITABILITY.md) for the full contract, the two-method design rationale, `DynamicFormEditabilityListener` (the `PRE_SET_DATA` re-check), and a `kachnitel/admin-bundle` compiler-pass example.
 
 ## Controlling Field Widgets
 
-A Doctrine `string` field with a matching validator constraint (`#[Assert\Email]`, `#[Assert\Url]`, `#[Assert\Country]`, ...) is upgraded from `TextType` to a more specific widget automatically, via Symfony's own `form.type_guesser.validator`. This bundle also ships an optional, opt-in naming-convention guesser (`ConventionalFieldTypeGuesser`, covering `tel`/`color`/`search`/`email`/`url`) for the cases no validator constraint can express. See [Type Guessing](docs/TYPE_GUESSING.md) for the full mechanism, how to enable naming-convention guessing, and how to write your own guesser.
+Doctrine `string` fields are upgraded from `TextType` to a more specific widget when a matching validator constraint is present — `#[Assert\Email]` → `EmailType`, `#[Assert\Url]` → `UrlType`, `#[Assert\Country]` → `CountryType`, etc. Powered by Symfony's own `form.type_guesser.validator`, wired automatically.
+
+An optional naming-convention guesser (`ConventionalFieldTypeGuesser`, ships in this bundle) covers `tel`/`color`/`search`/`email`/`url` by field name for fields with no matching constraint. Not enabled by default — see [Type Guessing](docs/TYPE_GUESSING.md) for the opt-in recipe and how to write your own guesser.
+
+<details>
+<summary>How It Works</summary>
+
+Four collaborating pieces:
+
+| Class | Responsibility |
+|---|---|
+| `DoctrineFormTypeMapper` | Maps a single Doctrine field/association mapping to a Symfony form field config (type + options) |
+| `DynamicEntityFormType` | Walks entity metadata, calls the mapper for each field/association, decides what to include |
+| `FieldEditabilityResolverInterface` | Extension point — decides whether a property should be in the form at all |
+| `FormTypeGuesserInterface` (Symfony's own) | Extension point — upgrades a `string` field to a more specific type than `TextType` |
+
+`DynamicEntityFormType` has no knowledge of attributes, expressions, or permissions — every inclusion decision beyond Doctrine's structural rules (the identifier field, unsupported types) is delegated to the injected `FieldEditabilityResolverInterface`. The bundle ships a permissive default; consumers override the service alias.
+
+`DynamicFormEditabilityListener` is a `FormEvents::PRE_SET_DATA` listener manually registered inside `DynamicEntityFormType::buildForm()` (not a DI-managed service — it needs the specific entity class and resolver instance from that build call). It re-runs `canEdit()` for every field once a real entity instance is bound, covering `LiveCollectionType` child forms where `buildForm()` runs before any row data is available. It can only **remove** fields already added by `buildForm()`; it never re-adds an association that was skipped at build time.
+
+</details>
 
 ## Documentation
 
-| Guide | Description |
+| Guide | Covers |
 |---|---|
-| [Field Mapping](docs/FIELD_MAPPING.md) | Full Doctrine → Symfony type table, nullability rules, `empty_data` behaviour, `RequiredValueTransformer` |
-| [Associations](docs/ASSOCIATIONS.md) | Collection handling, `cascade`/`orphanRemoval` requirements, auto-skip rules, recursion prevention, troubleshooting |
-| [Editability](docs/EDITABILITY.md) | The `FieldEditabilityResolverInterface` extension point, with a worked custom-resolver example |
-| [Type Guessing](docs/TYPE_GUESSING.md) | Constraint-driven and naming-convention widget upgrades, the `FormTypeGuesserInterface` extension point, and the `kachnitel/admin-bundle` integration recipe |
+| [Field Mapping](docs/FIELD_MAPPING.md) | Full type table, nullability cross-check, `empty_data` transformer quirks, `RequiredValueTransformer`, duplicate-validation prevention |
+| [Associations](docs/ASSOCIATIONS.md) | Collection mapping, `cascade`/`orphanRemoval`/adder-remover requirements, auto-skip rules, infinite-recursion prevention, troubleshooting |
+| [Editability](docs/EDITABILITY.md) | `FieldEditabilityResolverInterface` contract, two-method design rationale, `DynamicFormEditabilityListener`, `kachnitel/admin-bundle` real-world example |
+| [Type Guessing](docs/TYPE_GUESSING.md) | Constraint-driven and naming-convention widget upgrades, `FormTypeGuesserInterface` extension point, `kachnitel/admin-bundle` opt-in recipe |
 
-## Development
+<details>
+<summary>Development</summary>
 
 ```bash
 composer test       # phpstan (level 10) + phpcs + phpunit + phpmd
@@ -131,31 +160,36 @@ composer phpunit
 composer phpmd
 ```
 
-Tests are organised into feature groups — run just what you're touching:
+Run a specific group:
 
 ```bash
-vendor/bin/phpunit --group auto-form
-vendor/bin/phpunit --group collections
-vendor/bin/phpunit --group dynamic-form
-vendor/bin/phpunit --group editability
+vendor/bin/phpunit --group auto-form        # DynamicEntityFormType + DoctrineFormTypeMapper core
+vendor/bin/phpunit --group collections      # Association collection handling
+vendor/bin/phpunit --group dynamic-form     # DynamicEntityFormType + DynamicFormEditabilityListener
+vendor/bin/phpunit --group editability      # AlwaysEditableFieldResolver
 vendor/bin/phpunit --group form-transformers
-vendor/bin/phpunit --group form-exceptions
-vendor/bin/phpunit --group inline-add
-vendor/bin/phpunit --group type-guessing
-vendor/bin/phpunit --group integration
+vendor/bin/phpunit --group form-exceptions  # NullabilityMismatchException
+vendor/bin/phpunit --group inline-add       # data-admin-entity-class attr on EntityType
+vendor/bin/phpunit --group type-guessing    # ConventionalFieldTypeGuesser + mapper integration
+vendor/bin/phpunit --group integration      # Real ValidatorTypeGuesser smoke tests
 ```
 
-## Requirements
+</details>
+
+<details>
+<summary>Requirements</summary>
 
 - PHP 8.2+
 - Symfony 6.4 / 7.0 / 8.0 — `doctrine-bridge`, `form`, `framework-bundle`, `validator`
 - Doctrine ORM 3.5+, `doctrine/doctrine-bundle` ^3.0
 - Symfony UX Live Component ^2.13 (for `OneToMany` → `LiveCollectionType`)
-- Symfony UX Autocomplete ^3.0 (for association `EntityType` fields)
-- Symfony Intl (suggested; required only if any entity uses `#[Assert\Country]`, `#[Assert\Language]`, `#[Assert\Currency]`, or `#[Assert\Locale]` — see [Type Guessing](docs/TYPE_GUESSING.md))
+- Symfony UX Autocomplete ^3.0 (for association `EntityType` autocomplete)
+- `symfony/intl` *(suggested)* — required at runtime if any entity uses `#[Assert\Country]`, `#[Assert\Language]`, `#[Assert\Currency]`, or `#[Assert\Locale]` — see [Type Guessing](docs/TYPE_GUESSING.md)
+
+</details>
 
 ## License
 
 **MPL-2.0** — see [LICENSE](LICENSE).
 
-Mozilla Public License 2.0 is a file-level copyleft: if you distribute a *modified* version of a file from this package, that specific file's source has to stay available under MPL-2.0. It does **not** require you to open source a larger application that merely depends on this package unmodified, and — unlike AGPL, this package's earlier license — it has no network-use clause, so running it as part of a SaaS/network service doesn't trigger anything extra. That's the compatibility reasoning behind the switch: it plays cleanly with `kachnitel/admin-bundle`'s MIT license and with closed-source consuming applications generally. This isn't legal advice; get your own read on it if licensing terms matter for your project.
+File-level copyleft: distributing a *modified* version of a file from this package requires that file's source to remain available under MPL-2.0. Using the package unmodified in a proprietary or closed-source application is fine. No network-use clause (unlike AGPL) — running it as part of a SaaS service triggers nothing extra. Compatible with `kachnitel/admin-bundle`'s MIT license.

@@ -60,17 +60,59 @@ class DynamicEntityFormTypeTest extends TestCase
         $resolver->resolve(['entity_class' => 42]);
     }
 
-    public function testDataClassIsNotSetByDynamicFormType(): void
+    /**
+     * data_class is a LAZY default (see DynamicEntityFormType::configureOptions()):
+     * binding straight to the introspected entity is the overwhelmingly common case,
+     * so the caller no longer has to type the same class-string twice.
+     */
+    public function testDataClassDefaultsToEntityClassWhenNotExplicitlySet(): void
     {
         $resolver = $this->makeResolver();
 
-        // Simulate Symfony's FormType registering data_class with a null default.
-        // DynamicEntityFormType must NOT override it — the caller (e.g. kachnitel/
-        // admin-bundle's AdminEntityForm) passes it explicitly, so the form type
-        // itself must leave it untouched.
         $options = $resolver->resolve(['entity_class' => 'App\\Entity\\Product']);
 
-        $this->assertNull($options['data_class'], 'data_class must remain null — set by caller, not form type');
+        $this->assertSame(
+            'App\\Entity\\Product',
+            $options['data_class'],
+            'data_class must default to entity_class when the caller does not pass it explicitly'
+        );
+    }
+
+    /**
+     * An explicit data_class (e.g. binding to a DTO rather than the entity itself)
+     * must win over the lazy default.
+     */
+    public function testExplicitDataClassOverridesTheDefault(): void
+    {
+        $resolver = $this->makeResolver();
+
+        $options = $resolver->resolve([
+            'entity_class' => 'App\\Entity\\Product',
+            'data_class'   => 'App\\Dto\\ProductDto',
+        ]);
+
+        $this->assertSame('App\\Dto\\ProductDto', $options['data_class']);
+    }
+
+    /**
+     * An explicit `null` must also win over the lazy default — this is what
+     * preserves the unmapped-form use case (form data bound to a plain array
+     * instead of any object). OptionsResolver treats "explicitly passed null"
+     * as different from "omitted"; only the latter triggers the lazy closure.
+     */
+    public function testExplicitNullDataClassIsPreservedForUnmappedForms(): void
+    {
+        $resolver = $this->makeResolver();
+
+        $options = $resolver->resolve([
+            'entity_class' => 'App\\Entity\\Product',
+            'data_class'   => null,
+        ]);
+
+        $this->assertNull(
+            $options['data_class'],
+            'An explicit null must win over the lazy default so unmapped/array-backed forms remain possible'
+        );
     }
 
     public function testEntityClassOptionIsAccepted(): void
@@ -338,7 +380,9 @@ class DynamicEntityFormTypeTest extends TestCase
     {
         $resolver = new OptionsResolver();
 
-        // Simulate Symfony's base FormType registering data_class as nullable string.
+        // Simulate Symfony's base FormType registering data_class as nullable string,
+        // with its own default of null. DynamicEntityFormType::configureOptions()
+        // then overrides that default with its own lazy one — see the tests above.
         $resolver->setDefault('data_class', null);
         $resolver->setAllowedTypes('data_class', ['null', 'string']);
 
