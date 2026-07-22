@@ -4,7 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
-## [0.0.2](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.1...v0.0.2) (2026-07-20)
+## [0.0.3](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.2...v0.0.3) (2026-07-22)
+
+### ⚠ BREAKING CHANGES
+
+* Data_class now defaults to entity_class when omitted. ([def1a4](https://github.com/kachnitel/dynamic-form-bundle/commit/def1a4d18512230ee0f2404306dcc46987eeabe5))
+
+### Features
+
+* Lazy data_class default (avoid repeating entity_class) ([def1a4](https://github.com/kachnitel/dynamic-form-bundle/commit/def1a4d18512230ee0f2404306dcc46987eeabe5))
+
+
+---
+
+## [0.0.2](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.1...v0.0.2) (2026-07-19)
 
 ### Features
 
