@@ -15,13 +15,34 @@ services:
         alias: Kachnitel\DynamicFormBundle\Editability\AlwaysEditableFieldResolver
 
     # Form
-    # DynamicFormEditabilityListener is excluded — it's manually instantiated by
-    # DynamicEntityFormType::buildForm() as a form event listener, not a DI-managed
-    # service (mirrors kachnitel/admin-bundle's own services.yaml, which excludes
-    # it from its Form/ resource for the identical reason).
+    # Two files are excluded from this resource's autowiring:
+    #
+    #  - DynamicFormEditabilityListener is manually instantiated by
+    #    DynamicEntityFormType::buildForm() as a form event listener, not a
+    #    DI-managed service (mirrors kachnitel/admin-bundle's own
+    #    services.yaml, which excludes it from its Form/ resource for the
+    #    identical reason).
+    #
+    #  - TypeGuessing/TypeGuessingCoordinator.php is manually instantiated
+    #    inside DoctrineFormTypeMapper's own constructor, reusing the exact
+    #    $typeGuesser/$minimumGuessConfidence values DoctrineFormTypeMapper
+    #    itself receives (see that constructor, and the $typeGuesser
+    #    override below). If left in this resource, the container would
+    #    ALSO try to autowire TypeGuessingCoordinator as its own standalone
+    #    service — independently resolving its own ?FormTypeGuesserInterface
+    #    argument. That fails to compile: this bundle's own
+    #    ConventionalFieldTypeGuesser and Symfony's form.type_guesser.validator
+    #    both implement FormTypeGuesserInterface, so autowiring by interface
+    #    is ambiguous between the two — exactly the ambiguity the explicit
+    #    $typeGuesser override below exists to resolve for
+    #    DoctrineFormTypeMapper. With no consumer for a second,
+    #    independently-resolved instance, excluding it here is simpler than
+    #    duplicating that override for a service nothing uses directly.
     Kachnitel\DynamicFormBundle\Form\:
         resource: '../src/Form'
-        exclude: '../src/Form/DynamicFormEditabilityListener.php'
+        exclude:
+            - '../src/Form/DynamicFormEditabilityListener.php'
+            - '../src/Form/TypeGuessing/TypeGuessingCoordinator.php'
 
     # Constraint-driven type guessing (see docs/TYPE_GUESSING.md). Wires
     # Symfony's own form.type_guesser.validator so a #[Assert\Email],

@@ -66,7 +66,7 @@ final class DynamicFormEditabilityListener implements EventSubscriberInterface
 
         $form = $event->getForm();
 
-        foreach ($form->all() as $fieldName => $child) {
+        foreach (array_keys($form->all()) as $fieldName) {
             if (!$this->editabilityResolver->canEdit($this->entityClass, $fieldName, $entity)) {
                 $form->remove($fieldName);
             }

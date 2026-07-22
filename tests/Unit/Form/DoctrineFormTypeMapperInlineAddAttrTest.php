@@ -19,8 +19,6 @@ use Symfony\UX\LiveComponent\Form\Type\LiveCollectionType;
  * Verifies that DoctrineFormTypeMapper embeds `data-admin-entity-class` in the
  * HTML attr array for EntityType-backed associations so that the
  * EntityTypeAddButton Twig component can be rendered from the form theme.
- *
- * @group inline-add
  */
 #[CoversClass(DoctrineFormTypeMapper::class)]
 #[Group('inline-add')]

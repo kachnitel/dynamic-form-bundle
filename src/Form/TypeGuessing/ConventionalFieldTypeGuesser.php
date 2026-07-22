@@ -102,6 +102,15 @@ final class ConventionalFieldTypeGuesser implements FormTypeGuesserInterface
         ],
     ];
 
+    /**
+     * $class is intentionally unused — guessDoesNotVaryByEntityClass() (see
+     * the test suite) locks this in: naming-convention guessing depends
+     * only on the property name, never on the entity it belongs to. Kept
+     * as a real parameter (not renamed or dropped) because
+     * FormTypeGuesserInterface mandates it.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function guessType(string $class, string $property): ?TypeGuess
     {
         $words = $this->words($property);
@@ -118,16 +127,25 @@ final class ConventionalFieldTypeGuesser implements FormTypeGuesserInterface
     // Naming tells us nothing about required/maxLength/pattern — leave those
     // to the validator/Doctrine-nullability guessers.
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function guessRequired(string $class, string $property): ?ValueGuess
     {
         return null;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function guessMaxLength(string $class, string $property): ?ValueGuess
     {
         return null;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function guessPattern(string $class, string $property): ?ValueGuess
     {
         return null;
