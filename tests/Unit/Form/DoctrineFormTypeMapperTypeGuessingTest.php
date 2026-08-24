@@ -7,10 +7,17 @@ namespace Kachnitel\DynamicFormBundle\Tests\Unit\Form;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\FieldMapping;
 use Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeGuessing\TypeGuessingCoordinator;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\AssociationFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\EnumFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\FieldOptionsBuilder;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\ScalarFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\TemporalFieldTypeMapper;
 use Kachnitel\DynamicFormBundle\Tests\Fixtures\TestStatus;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -30,11 +37,14 @@ use Symfony\Component\Form\Guess\TypeGuess;
  * companion test using a real Symfony\Component\Form\Extension\Validator\
  * ValidatorTypeGuesser lives in
  * tests/Integration/Form/DoctrineFormTypeMapperValidatorGuesserTest.php.
- *
- * @group auto-form
- * @group type-guessing
  */
 #[CoversClass(DoctrineFormTypeMapper::class)]
+#[UsesClass(TypeGuessingCoordinator::class)]
+#[UsesClass(AssociationFieldTypeMapper::class)]
+#[UsesClass(EnumFieldTypeMapper::class)]
+#[UsesClass(FieldOptionsBuilder::class)]
+#[UsesClass(ScalarFieldTypeMapper::class)]
+#[UsesClass(TemporalFieldTypeMapper::class)]
 #[Group('auto-form')]
 #[Group('type-guessing')]
 class DoctrineFormTypeMapperTypeGuessingTest extends TestCase

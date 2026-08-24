@@ -8,9 +8,16 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\FieldMapping;
 use Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper;
 use Kachnitel\DynamicFormBundle\Form\Exception\NullabilityMismatchException;
+use Kachnitel\DynamicFormBundle\Form\TypeGuessing\TypeGuessingCoordinator;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\AssociationFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\EnumFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\FieldOptionsBuilder;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\ScalarFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\TemporalFieldTypeMapper;
 use Kachnitel\DynamicFormBundle\Tests\Fixtures\TestStatus;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
@@ -27,11 +34,15 @@ use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @group auto-form
- */
 #[CoversClass(DoctrineFormTypeMapper::class)]
 #[UsesClass(NullabilityMismatchException::class)]
+#[UsesClass(TypeGuessingCoordinator::class)]
+#[UsesClass(AssociationFieldTypeMapper::class)]
+#[UsesClass(EnumFieldTypeMapper::class)]
+#[UsesClass(FieldOptionsBuilder::class)]
+#[UsesClass(ScalarFieldTypeMapper::class)]
+#[UsesClass(TemporalFieldTypeMapper::class)]
+#[Group('auto-form')]
 class DoctrineFormTypeMapperTest extends TestCase
 {
     private DoctrineFormTypeMapper $mapper;

@@ -8,6 +8,10 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\FieldMapping;
 use Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper;
 use Kachnitel\DynamicFormBundle\Form\TypeGuessing\ConventionalFieldTypeGuesser;
+use Kachnitel\DynamicFormBundle\Form\TypeGuessing\TypeGuessingCoordinator;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\FieldOptionsBuilder;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\ScalarFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\TemporalFieldTypeMapper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -41,12 +45,13 @@ use Symfony\Component\Validator\Mapping\Loader\AttributeLoader;
  * requires symfony/intl (require-dev) for assertCountryConstraintProducesCountryType()
  * specifically — see docs/TYPE_GUESSING.md "Country/Language/Currency/Locale
  * need symfony/intl".
- *
- * @group type-guessing
- * @group integration
  */
 #[CoversClass(DoctrineFormTypeMapper::class)]
 #[UsesClass(ConventionalFieldTypeGuesser::class)]
+#[UsesClass(TypeGuessingCoordinator::class)]
+#[UsesClass(FieldOptionsBuilder::class)]
+#[UsesClass(ScalarFieldTypeMapper::class)]
+#[UsesClass(TemporalFieldTypeMapper::class)]
 #[Group('type-guessing')]
 #[Group('integration')]
 class DoctrineFormTypeMapperValidatorGuesserTest extends TestCase

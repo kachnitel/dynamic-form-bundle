@@ -10,6 +10,7 @@ use Kachnitel\DynamicFormBundle\Editability\FieldEditabilityResolverInterface;
 use Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper;
 use Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType;
 use Kachnitel\DynamicFormBundle\Form\DynamicFormEditabilityListener;
+use Kachnitel\DynamicFormBundle\Form\DynamicFormViewEditabilityFilter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,13 +24,10 @@ use Symfony\UX\LiveComponent\Form\Type\LiveCollectionType;
 
 /**
  * Tests DynamicEntityFormType collection inclusion/exclusion logic.
- *
- * @covers \Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType
- * @group dynamic-form
- * @group collections
  */
 #[CoversClass(DynamicEntityFormType::class)]
 #[UsesClass(DynamicFormEditabilityListener::class)]
+#[UsesClass(DynamicFormViewEditabilityFilter::class)]
 #[Group('dynamic-form')]
 #[Group('collections')]
 class DynamicEntityFormTypeCollectionTest extends TestCase

@@ -10,6 +10,7 @@ use Kachnitel\DynamicFormBundle\Editability\FieldEditabilityResolverInterface;
 use Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper;
 use Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType;
 use Kachnitel\DynamicFormBundle\Form\DynamicFormEditabilityListener;
+use Kachnitel\DynamicFormBundle\Form\DynamicFormViewEditabilityFilter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -20,11 +21,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @group auto-form
- */
 #[CoversClass(DynamicEntityFormType::class)]
 #[UsesClass(DynamicFormEditabilityListener::class)]
+#[UsesClass(DynamicFormViewEditabilityFilter::class)]
 #[Group('auto-form')]
 class DynamicEntityFormTypeTest extends TestCase
 {

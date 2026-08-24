@@ -9,20 +9,24 @@ use Doctrine\ORM\Mapping\ManyToManyOwningSideMapping;
 use Doctrine\ORM\Mapping\OneToManyAssociationMapping;
 use Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper;
 use Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType;
+use Kachnitel\DynamicFormBundle\Form\TypeGuessing\TypeGuessingCoordinator;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\AssociationFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\ScalarFieldTypeMapper;
+use Kachnitel\DynamicFormBundle\Form\TypeMapping\TemporalFieldTypeMapper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\UX\LiveComponent\Form\Type\LiveCollectionType;
 
-/**
- * @covers \Kachnitel\DynamicFormBundle\Form\DoctrineFormTypeMapper
- * @group dynamic-form
- * @group collections
- */
 #[CoversClass(DoctrineFormTypeMapper::class)]
+#[UsesClass(TypeGuessingCoordinator::class)]
+#[UsesClass(AssociationFieldTypeMapper::class)]
+#[UsesClass(ScalarFieldTypeMapper::class)]
+#[UsesClass(TemporalFieldTypeMapper::class)]
 #[Group('dynamic-form')]
 #[Group('collections')]
 class DoctrineFormTypeMapperCollectionTest extends TestCase
