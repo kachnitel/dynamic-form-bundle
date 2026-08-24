@@ -53,7 +53,9 @@ interface FieldEditabilityResolverInterface
      * a child form to a row). Implementations that need a concrete instance to
      * evaluate a per-row condition should treat null as "cannot resolve yet,
      * default to include" — DynamicFormEditabilityListener re-checks every field
-     * once a real (even freshly-`new`'d) entity is bound via PRE_SET_DATA.
+     * once a real (even freshly-`new`'d) entity is bound via PRE_SET_DATA. New
+     * entities created during submission are checked when their form view is
+     * finished.
      */
     public function canEdit(string $entityClass, string $property, ?object $entity = null): bool;
 

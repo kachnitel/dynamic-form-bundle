@@ -8,6 +8,7 @@ use Kachnitel\DynamicFormBundle\Editability\FieldEditabilityResolverInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * Form event listener that re-checks field editability once a form's data is
@@ -58,16 +59,18 @@ final class DynamicFormEditabilityListener implements EventSubscriberInterface
 
     public function onPreSetData(FormEvent $event): void
     {
-        $entity = $event->getData();
+        $this->removeNonEditableFields($event->getForm(), $event->getData(), $this->entityClass);
+    }
 
-        if (!is_object($entity) || !$entity instanceof $this->entityClass) {
+    /** @param FormInterface<mixed> $form */
+    private function removeNonEditableFields(FormInterface $form, mixed $entity, string $entityClass): void
+    {
+        if (!is_object($entity) || !$entity instanceof $entityClass) {
             return;
         }
 
-        $form = $event->getForm();
-
         foreach (array_keys($form->all()) as $fieldName) {
-            if (!$this->editabilityResolver->canEdit($this->entityClass, $fieldName, $entity)) {
+            if (!$this->editabilityResolver->canEdit($entityClass, $fieldName, $entity)) {
                 $form->remove($fieldName);
             }
         }

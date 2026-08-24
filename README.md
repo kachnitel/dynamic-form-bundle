@@ -1,7 +1,7 @@
 # Kachnitel Dynamic Form Bundle
 <!-- BADGES -->
 ![Tests](<https://img.shields.io/badge/tests-283%20passed-red>)
-![Coverage](<https://img.shields.io/badge/coverage-89%25-brightgreen>)
+![Coverage](<https://img.shields.io/badge/coverage-66%25-yellow>)
 ![Assertions](<https://img.shields.io/badge/assertions-713-blue>)
 ![PHPStan](<https://img.shields.io/badge/PHPStan-10-brightgreen>)
 ![PHP](<https://img.shields.io/badge/PHP-&gt;=8.2-777BB4?logo=php&logoColor=white>)

@@ -6,12 +6,11 @@ namespace Kachnitel\DynamicFormBundle\Form;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\OneToManyAssociationMapping;
 use Kachnitel\DynamicFormBundle\Editability\FieldEditabilityResolverInterface;
 use Kachnitel\DynamicFormBundle\Form\DataTransformer\RequiredValueTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -67,7 +66,12 @@ class DynamicEntityFormType extends AbstractType
         private readonly EntityManagerInterface $em,
         private readonly DoctrineFormTypeMapper $mapper,
         private readonly FieldEditabilityResolverInterface $editabilityResolver,
-    ) {}
+        ?DynamicFormViewEditabilityFilter $viewEditabilityFilter = null,
+    ) {
+        $this->viewEditabilityFilter = $viewEditabilityFilter ?? new DynamicFormViewEditabilityFilter($editabilityResolver);
+    }
+
+    private readonly DynamicFormViewEditabilityFilter $viewEditabilityFilter;
 
     /**
      * @param array{entity_class: class-string, is_root?: bool, entity_instance?: object|null} $options
@@ -103,10 +107,7 @@ class DynamicEntityFormType extends AbstractType
             $this->editabilityResolver,
             $entityClass,
         );
-        $builder->addEventListener(
-            FormEvents::PRE_SET_DATA,
-            [$listener, 'onPreSetData'],
-        );
+        $builder->addEventSubscriber($listener);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -130,6 +131,14 @@ class DynamicEntityFormType extends AbstractType
 
         $resolver->setDefault('entity_instance', null);
         $resolver->setAllowedTypes('entity_instance', ['object', 'null']);
+    }
+
+    public function finishView(FormView $view, $form, array $options): void
+    {
+        /** @var class-string $entityClass */
+        $entityClass = $options['entity_class'];
+
+        $this->viewEditabilityFilter->filter($view, $form, $entityClass);
     }
 
     // ── Private helpers ────────────────────────────────────────────────────────
@@ -219,7 +228,7 @@ class DynamicEntityFormType extends AbstractType
 
         // This is an inverse-side association (has mappedBy)
         // Keep OneToMany collections in root forms; skip everything else
-        if ($isCollection && $isRoot && $mapping instanceof OneToManyAssociationMapping) {
+        if ($isCollection && $isRoot && is_a($mapping, 'Doctrine\\ORM\\Mapping\\OneToManyAssociationMapping')) {
             return false; // OneToMany in root form: include
         }
 
