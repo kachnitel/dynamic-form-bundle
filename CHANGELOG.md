@@ -4,7 +4,16 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
-## [0.0.3](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.2...v0.0.3) (2026-07-22)
+## [0.0.4](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.3...v0.0.4) (2026-08-24)
+
+### Bug Fixes
+
+* Apply dynamic editability to live collection entries ([f7c15d](https://github.com/kachnitel/dynamic-form-bundle/commit/f7c15dcd4427b32e4a54aea90e672665253e28ab))
+
+
+---
+
+## [0.0.3](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.2...v0.0.3) (2026-07-21)
 
 ### ⚠ BREAKING CHANGES
 
