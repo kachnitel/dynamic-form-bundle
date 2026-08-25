@@ -1,8 +1,8 @@
 # Kachnitel Dynamic Form Bundle
 <!-- BADGES -->
-![Tests](<https://img.shields.io/badge/tests-285%20passed-brightgreen>)
-![Coverage](<https://img.shields.io/badge/coverage-97%25-brightgreen>)
-![Assertions](<https://img.shields.io/badge/assertions-717-blue>)
+![Tests](<https://img.shields.io/badge/tests-286%20passed-brightgreen>)
+![Coverage](<https://img.shields.io/badge/coverage-96%25-brightgreen>)
+![Assertions](<https://img.shields.io/badge/assertions-723-blue>)
 ![PHPStan](<https://img.shields.io/badge/PHPStan-10-brightgreen>)
 ![PHP](<https://img.shields.io/badge/PHP-&gt;=8.2-777BB4?logo=php&logoColor=white>)
 ![Symfony](<https://img.shields.io/badge/Symfony-^6.4|^7.0|^8.0-000000?logo=symfony&logoColor=white>)
@@ -115,7 +115,7 @@ Kachnitel\DynamicFormBundle\Editability\FieldEditabilityResolverInterface:
     alias: App\Form\MyFieldEditabilityResolver
 ```
 
-See [Editability](docs/EDITABILITY.md) for the full contract, the two-method design rationale, `DynamicFormEditabilityListener` (the `PRE_SET_DATA` re-check), and a `kachnitel/admin-bundle` compiler-pass example.
+See [Editability](docs/EDITABILITY.md) for the full contract, the two-method design rationale, the `PRE_SET_DATA` listener and `finishView()` view filter, and a `kachnitel/admin-bundle` compiler-pass example.
 
 ## Controlling Field Widgets
 
@@ -138,6 +138,8 @@ Four collaborating pieces:
 `DynamicEntityFormType` has no knowledge of attributes, expressions, or permissions — every inclusion decision beyond Doctrine's structural rules (the identifier field, unsupported types) is delegated to the injected `FieldEditabilityResolverInterface`. The bundle ships a permissive default; consumers override the service alias.
 
 `DynamicFormEditabilityListener` is a `FormEvents::PRE_SET_DATA` listener manually registered inside `DynamicEntityFormType::buildForm()` (not a DI-managed service — it needs the specific entity class and resolver instance from that build call). It re-runs `canEdit()` for every field once a real entity instance is bound, covering `LiveCollectionType` child forms where `buildForm()` runs before any row data is available. It can only **remove** fields already added by `buildForm()`; it never re-adds an association that was skipped at build time.
+
+`DynamicFormViewEditabilityFilter` runs during `finishView()` and applies the same `canEdit()` check to the bound form data at `FormView` level. It specifically covers rows added dynamically by `LiveCollectionType`, removing rejected child views after those rows exist. It only removes existing view children and does not add fields skipped during form building.
 
 </details>
 

@@ -55,7 +55,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *     Passed straight through to FieldEditabilityResolverInterface, so implementations
  *     that need a concrete instance (e.g. to evaluate a per-row expression) can do so.
  *     For new entities, pass a fresh instance. For child forms in LiveCollectionType,
- *     entity_instance is typically passed from the parent.
+ *     row data is supplied by the form system when the child is bound.
  *
  * @see Editability\FieldEditabilityResolverInterface for how field-level editability is resolved
  * @extends AbstractType<object>

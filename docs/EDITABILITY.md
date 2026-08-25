@@ -10,6 +10,7 @@
 - [Writing Your Own Resolver](#writing-your-own-resolver)
 - [When `$entity` Is `null`](#when-entity-is-null)
 - [`DynamicFormEditabilityListener`](#dynamicformeditabilitylistener)
+- [`DynamicFormViewEditabilityFilter`](#dynamicformvieweditabilityfilter)
 - [Real-World Example: `kachnitel/admin-bundle`](#real-world-example-kachniteladmin-bundle)
 
 ## The Interface
@@ -100,6 +101,12 @@ Two things it deliberately does **not** do:
 
 - It only ever **removes** fields — it can't add back a field `buildForm()` didn't add in the first place. An association skipped at build time because `isExplicitOverride()` couldn't be resolved without an entity stays skipped; this listener never revisits that decision.
 - It only re-checks `canEdit()`, never `isExplicitOverride()` — the narrower structural-override question is answered once, at build time, and isn't reconsidered here.
+
+## `DynamicFormViewEditabilityFilter`
+
+The `DynamicFormViewEditabilityFilter` runs at `finishView()` time, after a form has been turned into a `FormView`. It re-checks `canEdit()` with the data currently bound to the form and removes rejected entries from the view's children.
+
+This is a separate final safeguard for `LiveCollectionType` rows added dynamically: those rows can reach the view after the normal form-building checks have already run. Like the listener, the filter only removes fields that are present; it never adds a field that was skipped during form building and does not replace the `PRE_SET_DATA` re-check for normally bound forms.
 
 ## Real-World Example: `kachnitel/admin-bundle`
 
