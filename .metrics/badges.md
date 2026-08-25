@@ -2,5 +2,6 @@
 ![Coverage](<https://img.shields.io/badge/coverage-96%25-brightgreen>)
 ![Assertions](<https://img.shields.io/badge/assertions-723-blue>)
 ![PHPStan](<https://img.shields.io/badge/PHPStan-10-brightgreen>)
+![PHPMD](<https://img.shields.io/badge/PHPMD-pass-brightgreen>)
 ![PHP](<https://img.shields.io/badge/PHP-&gt;=8.2-777BB4?logo=php&logoColor=white>)
 ![Symfony](<https://img.shields.io/badge/Symfony-^6.4|^7.0|^8.0-000000?logo=symfony&logoColor=white>)

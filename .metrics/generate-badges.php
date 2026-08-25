@@ -49,7 +49,7 @@ $hasIssues = preg_match(
 );
 
 // Overall test status
-$testsStatus = ($cleanOk && !$hasIssues) ? 'passing' : "failing($matches[0])";
+$testsStatus = ($cleanOk && !$hasIssues) ? 'passing' : "failing(" . ($matches[0] ?? 'unknown') . ")";
 $testsColor  = ($cleanOk && !$hasIssues) ? 'brightgreen' : 'red';
 
 // Parse coverage percentage
@@ -64,6 +64,12 @@ exec('cd ' . escapeshellarg($projectRoot) . ' && vendor/bin/phpstan analyse --me
 $stanOutput = implode("\n", $stanOutput);
 $phpstanStatus = $stanExit === 0 ? 'pass' : 'errors';
 $phpstanColor = $stanExit === 0 ? 'brightgreen' : 'red';
+
+// Run PHPMD
+echo "Running PHPMD...\n";
+exec('cd ' . escapeshellarg($projectRoot) . ' && vendor/bin/phpmd . ansi ./phpmd.ruleset.xml --exclude ' . escapeshellarg('tests/*,vendor/*,var/*,.phpstan/*,.coverage/*') . ' 2>&1', $phpmdOutput, $phpmdExit);
+$phpmdStatus = $phpmdExit === 0 ? 'pass' : 'violations';
+$phpmdColor = $phpmdExit === 0 ? 'brightgreen' : 'red';
 
 // Get PHPStan level
 $phpstanLevel = 0;
@@ -88,6 +94,7 @@ $badges = <<<MARKDOWN
 ![Coverage](<https://img.shields.io/badge/coverage-{$coverageInt}%25-{$coverageColor}>)
 ![Assertions](<https://img.shields.io/badge/assertions-{$assertionCount}-blue>)
 ![PHPStan](<https://img.shields.io/badge/PHPStan-{$phpstanLevel}-{$phpstanColor}>)
+![PHPMD](<https://img.shields.io/badge/PHPMD-{$phpmdStatus}-{$phpmdColor}>)
 ![PHP](<https://img.shields.io/badge/PHP-{$phpVersionSafe}-777BB4?logo=php&logoColor=white>)
 ![Symfony](<https://img.shields.io/badge/Symfony-{$symfonyVersion}-000000?logo=symfony&logoColor=white>)
 
@@ -120,6 +127,9 @@ $summary = [
     'requirements' => [
         'php' => $phpVersion,
         'symfony' => $symfonyVersion,
+    ],
+    'phpmd' => [
+        'status' => $phpmdStatus,
     ],
 ];
 

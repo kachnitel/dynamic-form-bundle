@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-08-25 16:18:48",
+    "generated_at": "2026-08-25 16:27:52",
     "tests": {
         "count": 286,
         "assertions": 723,
@@ -17,5 +17,8 @@
     "requirements": {
         "php": ">=8.2",
         "symfony": "^6.4|^7.0|^8.0"
+    },
+    "phpmd": {
+        "status": "pass"
     }
 }

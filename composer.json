@@ -79,7 +79,6 @@
         "install-hooks": ".githooks/install-hooks.sh",
         "release": ".scripts/release.sh"
     },
-    "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
         "allow-plugins": {

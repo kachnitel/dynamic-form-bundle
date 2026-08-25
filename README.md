@@ -4,6 +4,7 @@
 ![Coverage](<https://img.shields.io/badge/coverage-96%25-brightgreen>)
 ![Assertions](<https://img.shields.io/badge/assertions-723-blue>)
 ![PHPStan](<https://img.shields.io/badge/PHPStan-10-brightgreen>)
+![PHPMD](<https://img.shields.io/badge/PHPMD-pass-brightgreen>)
 ![PHP](<https://img.shields.io/badge/PHP-&gt;=8.2-777BB4?logo=php&logoColor=white>)
 ![Symfony](<https://img.shields.io/badge/Symfony-^6.4|^7.0|^8.0-000000?logo=symfony&logoColor=white>)
 <!-- BADGES -->
@@ -184,6 +185,7 @@ vendor/bin/phpunit --group integration      # Real ValidatorTypeGuesser smoke te
 - PHP 8.2+
 - Symfony 6.4 / 7.0 / 8.0 — `doctrine-bridge`, `form`, `framework-bundle`, `validator`
 - Doctrine ORM 3.5+, `doctrine/doctrine-bundle` ^3.0
+- Entities must have a single-column primary key; composite primary keys are not supported
 - Symfony UX Live Component ^2.13 (for `OneToMany` → `LiveCollectionType`)
 - Symfony UX Autocomplete ^3.0 (for association `EntityType` autocomplete)
 - `symfony/intl` *(suggested)* — required at runtime if any entity uses `#[Assert\Country]`, `#[Assert\Language]`, `#[Assert\Currency]`, or `#[Assert\Locale]` — see [Type Guessing](docs/TYPE_GUESSING.md)
