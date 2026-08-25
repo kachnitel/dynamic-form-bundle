@@ -58,14 +58,14 @@ echo ""
 echo "📦 Publish to Packagist (auto-updates via webhook)"
 
 # Check for Flex recipe
-MAJOR_MINOR=$(echo "$NEW_TAG" | cut -d. -f1,2)
+MAJOR_MINOR=$(echo "${NEW_TAG#v}" | cut -d. -f1,2)
 RECIPE_DIR="recipes/$MAJOR_MINOR"
 
 if [[ -d "$RECIPE_DIR" ]]; then
   echo ""
   echo "📋 Flex recipe found at $RECIPE_DIR"
   echo "   Submit PR to: https://github.com/symfony/recipes-contrib"
-  echo "   Path: kachnitel/entity-components-bundle/$MAJOR_MINOR/"
+  echo "   Path: kachnitel/dynamic-form-bundle/$MAJOR_MINOR/"
 else
   echo ""
   echo "📦 No Flex recipe found for version $MAJOR_MINOR"

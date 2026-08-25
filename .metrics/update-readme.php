@@ -40,12 +40,19 @@ if (strpos($readme, $badgeMarker) !== false) {
     echo "✅ Updated existing badges in README.md\n";
 } else {
     // Insert badges after first heading
-    $readme = preg_replace(
-        '/(# Kachnitel Entity Components Bundle\n\n)/',
+    $updatedReadme = preg_replace(
+        '/(# Kachnitel Dynamic Form Bundle\n\n)/',
         "$1{$badgeSection}\n\n",
         $readme,
         1
     );
+
+    if ($updatedReadme === null || $updatedReadme === $readme) {
+        echo "❌ Could not find the README title to insert badges after.\n";
+        exit(1);
+    }
+
+    $readme = $updatedReadme;
     echo "✅ Inserted badges into README.md\n";
 }
 
