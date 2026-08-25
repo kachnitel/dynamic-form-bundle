@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Kachnitel\DynamicFormBundle\Tests\Unit\Form\TypeMapping;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\JoinColumnMapping;
+use Doctrine\ORM\Mapping\ManyToOneAssociationMapping;
 use Doctrine\ORM\Mapping\ManyToManyOwningSideMapping;
 use Doctrine\ORM\Mapping\OneToManyAssociationMapping;
 use Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType;
@@ -56,7 +58,7 @@ class AssociationFieldTypeMapperTest extends TestCase
     }
 
     #[Test]
-    public function singleValuedAssociationIsNotRequired(): void
+    public function nullableSingleValuedAssociationIsNotRequired(): void
     {
         $this->metadata->method('hasAssociation')->with('category')->willReturn(true);
         $this->metadata->method('isSingleValuedAssociation')->with('category')->willReturn(true);
@@ -66,6 +68,23 @@ class AssociationFieldTypeMapperTest extends TestCase
 
         $this->assertNotNull($config);
         $this->assertFalse($config['options']['required']);
+    }
+
+    #[Test]
+    public function nonNullableSingleValuedAssociationIsRequired(): void
+    {
+        $this->metadata->method('hasAssociation')->with('category')->willReturn(true);
+        $this->metadata->method('isSingleValuedAssociation')->with('category')->willReturn(true);
+        $this->metadata->method('getAssociationTargetClass')->with('category')->willReturn('App\\Entity\\Category');
+        $mapping = new ManyToOneAssociationMapping('category', 'App\\Entity\\Product', 'App\\Entity\\Category');
+        $mapping->joinColumns[]            = new JoinColumnMapping('category_id', 'id');
+        $mapping->joinColumns[0]->nullable = false;
+        $this->metadata->method('getAssociationMapping')->with('category')->willReturn($mapping);
+
+        $config = $this->mapper->map($this->metadata, 'category');
+
+        $this->assertNotNull($config);
+        $this->assertTrue($config['options']['required']);
     }
 
     #[Test]

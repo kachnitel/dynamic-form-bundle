@@ -6,6 +6,7 @@ namespace Kachnitel\DynamicFormBundle\Form\TypeMapping;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\OneToManyAssociationMapping;
+use Doctrine\ORM\Mapping\ToOneOwningSideMapping;
 use Kachnitel\DynamicFormBundle\Form\DynamicEntityFormType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\FormTypeInterface;
@@ -61,16 +62,32 @@ final class AssociationFieldTypeMapper
     {
         /** @var class-string $targetClass */
         $targetClass = $metadata->getAssociationTargetClass($associationName);
+        $mapping     = $metadata->getAssociationMapping($associationName);
 
         return [
             'type'    => EntityType::class,
             'options' => [
                 'class'        => $targetClass,
-                'required'     => false,
+                'required'     => $this->isRequiredToOne($mapping),
                 'autocomplete' => true,
                 'attr'         => ['data-admin-entity-class' => $targetClass],
             ],
         ];
+    }
+
+    private function isRequiredToOne(object $mapping): bool
+    {
+        if (!$mapping instanceof ToOneOwningSideMapping || $mapping->joinColumns === []) {
+            return false;
+        }
+
+        foreach ($mapping->joinColumns as $joinColumn) {
+            if ($joinColumn->nullable !== false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

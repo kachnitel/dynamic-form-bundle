@@ -23,6 +23,8 @@
 
 `EntityType` configs for single-valued and `ManyToMany` associations get `attr: ['data-admin-entity-class' => $targetClass]` — a hook for consumers that want to render an inline "+ Add" affordance next to the autocomplete field. `OneToMany` doesn't get it, since `LiveCollectionType` already has its own add/remove UI. `kachnitel/admin-bundle`'s `EntityTypeAddButton` component is the reference consumer of this hook.
 
+Owning-side single-valued associations (`ManyToOne` and owning `OneToOne`) derive `required` from their join columns: `required: true` when all join columns are non-nullable, and `false` otherwise. This gives autocomplete fields the same required-field handling as scalar fields. Inverse-side associations, `ManyToMany`, and `OneToMany` remain optional because they do not represent one nullable/non-nullable foreign-key value on the current entity.
+
 ## Quick Example
 
 ```php

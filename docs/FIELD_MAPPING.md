@@ -63,6 +63,8 @@ The reverse shape — Doctrine `nullable: false` with a PHP-nullable property �
 
 ## Why `empty_data` Is Always `''`
 
+Association fields follow the same nullability principle where Doctrine exposes it: owning-side `ManyToOne` and `OneToOne` fields are required when their join columns are non-nullable. Collection associations and inverse-side associations remain optional; their mapping does not describe a single foreign-key value that can be required by the generated field.
+
 Every non-boolean scalar type in the table above — string through enum — uses `empty_data: ''`, never a literal `null`, regardless of whether the field is nullable.
 
 This looks like it shouldn't matter (surely every transformer treats a blank string and a literal null the same?), but two of Symfony's own core transformers disagree:
@@ -92,7 +94,7 @@ The submit-time flow for a blank required field:
 
 Without that check, a property with its own `#[Assert\NotBlank]` would get a second, differently-worded constraint stacked on top, producing two separate error messages for the same blank field ("This value should not be blank." from the entity's own constraint, "Name is required." from the mapper). If the property has no constraint of its own, the mapper's `NotBlank` remains the default — plenty of entities are happy to let the bundle provide that behaviour rather than declaring it themselves.
 
-This check only applies to string/text. Guarded types (int/decimal/date/time/enum) never reach their own `constraints` option once `RequiredValueTransformer` marks the field not-synchronized — `FormValidator` skips it in that case — so there's no equivalent duplication risk to check for there.
+This check applies to string/text fields and to any field upgraded via type guessing (such as `EmailType`, `TelType`, or `ColorType`), because those fields are not value-guarded. Guarded types (int/decimal/date/time/enum) never reach their own `constraints` option once `RequiredValueTransformer` marks the field not-synchronized — `FormValidator` skips it in that case — so there's no equivalent duplication risk to check for there.
 
 ## Enum Fields
 
