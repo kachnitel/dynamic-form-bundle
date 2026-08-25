@@ -4,6 +4,22 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.1.0](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.4...v0.1.0) (2026-08-25)
+
+### Features
+
+
+##### Tests
+
+* Test coverage for DynamicFormViewEditabilityFilter ([9a3cbe](https://github.com/kachnitel/dynamic-form-bundle/commit/9a3cbee3f15d5afd22a9f22871bbad9f62892a0f))
+
+### Bug Fixes
+
+* Respect required flag in association mappings ([e15894](https://github.com/kachnitel/dynamic-form-bundle/commit/e15894747193ac45738d772a82d744c94ceea3c1))
+
+
+---
+
 ## [0.0.4](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.3...v0.0.4) (2026-08-24)
 
 ### Bug Fixes
