@@ -68,4 +68,20 @@ interface FieldEditabilityResolverInterface
      * canEdit(), this must NOT fall back to any entity-level default.
      */
     public function isExplicitOverride(string $entityClass, string $property, ?object $entity = null): bool;
+
+    /**
+     * Whether $property should be rendered but not editable (a `disabled` form field).
+     *
+     * Only consulted for fields canEdit() already accepted: canEdit() remains the
+     * include/exclude gate, so a field for which canEdit() is false is never rendered,
+     * read-only or not. A resolver that wants to show a field read-only therefore
+     * returns true from BOTH canEdit() and isReadOnly().
+     *
+     * Disabled Symfony fields ignore submitted data, so the entity value cannot be
+     * tampered with through the form.
+     *
+     * Implementations should not depend on $entity: it is null while the form
+     * structure is built.
+     */
+    public function isReadOnly(string $entityClass, string $property, ?object $entity = null): bool;
 }

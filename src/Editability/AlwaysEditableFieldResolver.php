@@ -33,4 +33,9 @@ final class AlwaysEditableFieldResolver implements FieldEditabilityResolverInter
     {
         return true;
     }
+
+    public function isReadOnly(string $entityClass, string $property, ?object $entity = null): bool
+    {
+        return false;
+    }
 }

@@ -23,6 +23,8 @@ interface FieldEditabilityResolverInterface
     public function canEdit(string $entityClass, string $property, ?object $entity = null): bool;
 
     public function isExplicitOverride(string $entityClass, string $property, ?object $entity = null): bool;
+
+    public function isReadOnly(string $entityClass, string $property, ?object $entity = null): bool;
 }
 ```
 
@@ -34,6 +36,14 @@ interface FieldEditabilityResolverInterface
 
 - **`canEdit()`** is the general include/exclude gate for an ordinary field. Implementations are expected to fall back to some entity-level default (e.g. "included unless this specific field is blocked") when there's no per-property override.
 - **`isExplicitOverride()`** is consulted only to decide whether a *structurally* auto-skipped association — the inverse side of a bidirectional relationship, or a `ManyToOne` back-reference to a parent's collection, see [Associations](ASSOCIATIONS.md#auto-skip-rules) — should be added back into the form. It must return `true` only for an explicit, per-property opt-in, **never** by falling back to an entity-level default. An entity with a permissive `canEdit()` default must not silently pull every auto-skipped back-reference into the generated form just because that default happens to be permissive.
+
+## Read-Only Fields: `isReadOnly()`
+
+`isReadOnly()` lets a resolver show a field without letting it be changed. It is only consulted for fields `canEdit()` already accepted — `canEdit()` stays the include/exclude gate — so a resolver that wants a read-only field returns `true` from **both** methods. `DynamicEntityFormType` then adds the field with `disabled => true`, which also means Symfony ignores any submitted value for it.
+
+The decision is made once, while the form structure is built, so implementations should not depend on `$entity` (it is `null` at that point). `AlwaysEditableFieldResolver` returns `false`.
+
+> **Upgrade note:** `isReadOnly()` is a new method on `FieldEditabilityResolverInterface`. Custom resolvers must implement it (return `false` to keep current behaviour).
 
 ## The Default: `AlwaysEditableFieldResolver`
 

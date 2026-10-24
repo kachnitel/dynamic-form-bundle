@@ -63,4 +63,12 @@ class AlwaysEditableFieldResolverTest extends TestCase
 
         $this->assertTrue($this->resolver->isExplicitOverride($entity::class, 'order', $entity));
     }
+
+    // ── isReadOnly() ───────────────────────────────────────────────────────────
+
+    #[Test]
+    public function isReadOnlyReturnsFalse(): void
+    {
+        $this->assertFalse($this->resolver->isReadOnly('App\Entity\Product', 'name'));
+    }
 }

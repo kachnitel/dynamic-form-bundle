@@ -163,7 +163,7 @@ class DynamicEntityFormType extends AbstractType
             return; // unsupported type — skip silently
         }
 
-        $builder->add($fieldName, $config['type'], $config['options']);
+        $builder->add($fieldName, $config['type'], $this->applyReadOnly($config['options'], $entityClass, $fieldName, $entity));
 
         if ($config['requiresValueGuard'] ?? false) {
             $builder->get($fieldName)->addModelTransformer(new RequiredValueTransformer());
@@ -200,7 +200,23 @@ class DynamicEntityFormType extends AbstractType
             return;
         }
 
-        $builder->add($assocName, $config['type'], $config['options']);
+        $builder->add($assocName, $config['type'], $this->applyReadOnly($config['options'], $entityClass, $assocName, $entity));
+    }
+
+    /**
+     * Adds `disabled => true` when the resolver reports the property as read-only.
+     *
+     * @param array<string, mixed> $options
+     * @param class-string $entityClass
+     * @return array<string, mixed>
+     */
+    private function applyReadOnly(array $options, string $entityClass, string $property, ?object $entity): array
+    {
+        if ($this->editabilityResolver->isReadOnly($entityClass, $property, $entity)) {
+            $options['disabled'] = true;
+        }
+
+        return $options;
     }
 
     /**
