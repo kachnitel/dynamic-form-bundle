@@ -15,6 +15,7 @@ use Symfony\Component\Form\FormInterface;
 
 /**
  * @group dynamic-form
+ * @group readonly-form
  */
 #[CoversClass(DynamicFormEditabilityListener::class)]
 class DynamicFormEditabilityListenerTest extends TestCase
@@ -90,6 +91,53 @@ class DynamicFormEditabilityListenerTest extends TestCase
         $form = $this->createMock(FormInterface::class);
         $form->method('all')->willReturn(['name' => $nameField, 'blockedField' => $blockedField]);
         $form->expects($this->once())->method('remove')->with('blockedField');
+
+        $listener = new DynamicFormEditabilityListener($resolver, ListenerFixtureEntity::class);
+        $listener->onPreSetData(new FormEvent($form, $entity));
+    }
+
+    /**
+     * A field that only turns out to be read-only once the entity is bound (build time had no
+     * entity) can no longer be disabled — the safe fallback is to drop it, not leave it editable.
+     */
+    #[Test]
+    public function removesAFieldThatIsReadOnlyButWasBuiltEnabled(): void
+    {
+        $entity = new ListenerFixtureEntity();
+
+        $resolver = $this->createMock(FieldEditabilityResolverInterface::class);
+        $resolver->method('canEdit')->willReturn(true);
+        $resolver->method('isReadOnly')
+            ->willReturnCallback(static fn (string $c, string $p, ?object $e = null): bool => $p === 'blockedField');
+
+        $nameField = $this->createMock(FormInterface::class);
+        $nameField->method('isDisabled')->willReturn(false);
+        $lateReadOnly = $this->createMock(FormInterface::class);
+        $lateReadOnly->method('isDisabled')->willReturn(false);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('all')->willReturn(['name' => $nameField, 'blockedField' => $lateReadOnly]);
+        $form->expects($this->once())->method('remove')->with('blockedField');
+
+        $listener = new DynamicFormEditabilityListener($resolver, ListenerFixtureEntity::class);
+        $listener->onPreSetData(new FormEvent($form, $entity));
+    }
+
+    #[Test]
+    public function keepsAReadOnlyFieldThatWasAlreadyBuiltDisabled(): void
+    {
+        $entity = new ListenerFixtureEntity();
+
+        $resolver = $this->createMock(FieldEditabilityResolverInterface::class);
+        $resolver->method('canEdit')->willReturn(true);
+        $resolver->method('isReadOnly')->willReturn(true);
+
+        $disabledField = $this->createMock(FormInterface::class);
+        $disabledField->method('isDisabled')->willReturn(true);
+
+        $form = $this->createMock(FormInterface::class);
+        $form->method('all')->willReturn(['name' => $disabledField]);
+        $form->expects($this->never())->method('remove');
 
         $listener = new DynamicFormEditabilityListener($resolver, ListenerFixtureEntity::class);
         $listener->onPreSetData(new FormEvent($form, $entity));

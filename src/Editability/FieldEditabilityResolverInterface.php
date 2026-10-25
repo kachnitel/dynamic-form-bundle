@@ -80,8 +80,11 @@ interface FieldEditabilityResolverInterface
      * Disabled Symfony fields ignore submitted data, so the entity value cannot be
      * tampered with through the form.
      *
-     * Implementations should not depend on $entity: it is null while the form
-     * structure is built.
+     * $entity is available at build time only when the caller passes `entity_instance`.
+     * A decision that needs the entity (a per-row condition) should treat null as "not
+     * read-only yet": DynamicFormEditabilityListener asks again once the entity is bound
+     * and, because an already-built field can no longer be disabled, removes any field that
+     * has become read-only in the meantime.
      */
     public function isReadOnly(string $entityClass, string $property, ?object $entity = null): bool;
 }

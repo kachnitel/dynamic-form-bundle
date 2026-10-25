@@ -69,8 +69,19 @@ final class DynamicFormEditabilityListener implements EventSubscriberInterface
             return;
         }
 
-        foreach (array_keys($form->all()) as $fieldName) {
+        foreach ($form->all() as $fieldName => $child) {
+            $fieldName = (string) $fieldName;
+
             if (!$this->editabilityResolver->canEdit($entityClass, $fieldName, $entity)) {
+                $form->remove($fieldName);
+
+                continue;
+            }
+
+            // Read-only was only discoverable now that the entity is bound (buildForm() had
+            // none), so the field was built enabled. A built field can't be disabled
+            // afterwards without rebuilding it; drop it rather than leave it editable.
+            if (!$child->isDisabled() && $this->editabilityResolver->isReadOnly($entityClass, $fieldName, $entity)) {
                 $form->remove($fieldName);
             }
         }
