@@ -4,6 +4,18 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.2.2](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.2.1...v0.2.2) (2026-10-28)
+
+### Bug Fixes
+
+
+##### Form
+
+* Disallow add/delete on read-only collections ([80c4fe](https://github.com/kachnitel/dynamic-form-bundle/commit/80c4fe38418f6eedb5c91190a6fabb400fdfa33b))
+
+
+---
+
 ## [0.2.1](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.2.0...v0.2.1) (2026-10-28)
 
 
