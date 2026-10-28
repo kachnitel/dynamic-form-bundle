@@ -39,7 +39,7 @@ interface FieldEditabilityResolverInterface
 
 ## Read-Only Fields: `isReadOnly()`
 
-`isReadOnly()` lets a resolver show a field without letting it be changed. It is only consulted for fields `canEdit()` already accepted — `canEdit()` stays the include/exclude gate — so a resolver that wants a read-only field returns `true` from **both** methods. `DynamicEntityFormType` then adds the field with `disabled => true`, which also means Symfony ignores any submitted value for it.
+`isReadOnly()` lets a resolver show a field without letting it be changed. It is only consulted for fields `canEdit()` already accepted — `canEdit()` stays the include/exclude gate — so a resolver that wants a read-only field returns `true` from **both** methods. `DynamicEntityFormType` then adds the field with `disabled => true`, which also means Symfony ignores any submitted value for it. A read-only collection field also has `allow_add` / `allow_delete` set to `false`, so no Add/Remove buttons are rendered.
 
 The decision is made while the form structure is built, where `$entity` is only available if the caller passed `entity_instance`. A per-row decision that needs the entity should return `false` for a `null` entity; `DynamicFormEditabilityListener` asks again once the entity is bound and — because an already-built field can't be disabled afterwards — **removes** a field that has become read-only in the meantime (e.g. rows of a collection). `AlwaysEditableFieldResolver` returns `false`.
 

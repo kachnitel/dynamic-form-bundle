@@ -206,6 +206,10 @@ class DynamicEntityFormType extends AbstractType
     /**
      * Adds `disabled => true` when the resolver reports the property as read-only.
      *
+     * A disabled collection also gets `allow_add` / `allow_delete` set to false (when the
+     * mapper configured them): Symfony ignores its submitted data, so the Add/Remove
+     * buttons of a LiveCollectionType would otherwise be offered but do nothing.
+     *
      * @param array<string, mixed> $options
      * @param class-string $entityClass
      * @return array<string, mixed>
@@ -214,6 +218,12 @@ class DynamicEntityFormType extends AbstractType
     {
         if ($this->editabilityResolver->isReadOnly($entityClass, $property, $entity)) {
             $options['disabled'] = true;
+
+            foreach (['allow_add', 'allow_delete'] as $option) {
+                if (array_key_exists($option, $options)) {
+                    $options[$option] = false;
+                }
+            }
         }
 
         return $options;

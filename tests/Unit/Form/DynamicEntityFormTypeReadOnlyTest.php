@@ -86,11 +86,67 @@ class DynamicEntityFormTypeReadOnlyTest extends TestCase
     }
 
     #[Test]
+    public function readOnlyCollectionAlsoDisallowsAddAndDelete(): void
+    {
+        $added = $this->buildCollectionAssociation(readOnly: ['rows']);
+
+        $this->assertTrue($added['rows']['disabled'] ?? false);
+        $this->assertFalse($added['rows']['allow_add'], 'a disabled collection must not offer Add');
+        $this->assertFalse($added['rows']['allow_delete'], 'a disabled collection must not offer Remove');
+    }
+
+    #[Test]
+    public function editableCollectionKeepsAddAndDelete(): void
+    {
+        $added = $this->buildCollectionAssociation(readOnly: []);
+
+        $this->assertArrayNotHasKey('disabled', $added['rows']);
+        $this->assertTrue($added['rows']['allow_add']);
+        $this->assertTrue($added['rows']['allow_delete']);
+    }
+
+    #[Test]
+    public function readOnlyAssociationWithoutCollectionOptionsGainsNoAllowKeys(): void
+    {
+        $metadata = $this->makeMetadata(fields: ['id'], assocNames: ['owner']);
+        $this->em->method('getClassMetadata')->willReturn($metadata);
+        $this->mapper->method('getAssociationConfig')
+            ->willReturn(['type' => self::ENTITY_TYPE, 'options' => ['class' => \stdClass::class]]);
+        $added = $this->createAddedCollector();
+
+        $this->makeFormType(readOnly: ['owner'])
+            ->buildForm($this->makeBuilder($added), ['entity_class' => ReadOnlyFixtureEntity::class]);
+
+        $this->assertArrayNotHasKey('allow_add', $added['owner']);
+        $this->assertArrayNotHasKey('allow_delete', $added['owner']);
+    }
+
+    #[Test]
     public function fieldRejectedByCanEditIsStillExcludedEvenIfReadOnly(): void
     {
         $options = $this->buildAndCollectOptions(fields: ['id', 'code'], readOnly: ['code'], blocked: ['code']);
 
         $this->assertArrayNotHasKey('code', $options, 'canEdit() false remains the exclusion gate');
+    }
+
+    /**
+     * @param list<string> $readOnly
+     * @return array<string, array<array-key, mixed>>
+     */
+    private function buildCollectionAssociation(array $readOnly): array
+    {
+        $metadata = $this->makeMetadata(fields: ['id'], assocNames: ['rows']);
+        $this->em->method('getClassMetadata')->willReturn($metadata);
+        $this->mapper->method('getAssociationConfig')->willReturn([
+            'type'    => self::ENTITY_TYPE,
+            'options' => ['class' => \stdClass::class, 'allow_add' => true, 'allow_delete' => true],
+        ]);
+        $added = $this->createAddedCollector();
+
+        $this->makeFormType($readOnly)
+            ->buildForm($this->makeBuilder($added), ['entity_class' => ReadOnlyFixtureEntity::class]);
+
+        return $added->getArrayCopy();
     }
 
     /**
