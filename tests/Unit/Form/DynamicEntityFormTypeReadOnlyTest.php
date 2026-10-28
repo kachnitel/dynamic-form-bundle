@@ -74,7 +74,7 @@ class DynamicEntityFormTypeReadOnlyTest extends TestCase
         $this->mapper->method('getAssociationConfig')
             ->willReturn(['type' => self::ENTITY_TYPE, 'options' => ['class' => \stdClass::class]]);
 
-        $added = new \ArrayObject();
+        $added = $this->createAddedCollector();
         $builder = $this->makeBuilder($added);
 
         $this->makeFormType(readOnly: ['owner'])
@@ -97,7 +97,7 @@ class DynamicEntityFormTypeReadOnlyTest extends TestCase
      * @param list<string> $fields
      * @param list<string> $readOnly
      * @param list<string> $blocked
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array<array-key, mixed>>
      */
     private function buildAndCollectOptions(array $fields, array $readOnly, array $blocked = []): array
     {
@@ -109,7 +109,7 @@ class DynamicEntityFormTypeReadOnlyTest extends TestCase
                 'options' => ['label' => ucfirst($f)],
             ]);
 
-        $added = new \ArrayObject();
+        $added = $this->createAddedCollector();
         $this->makeFormType($readOnly, $blocked)
             ->buildForm($this->makeBuilder($added), ['entity_class' => ReadOnlyFixtureEntity::class]);
 
@@ -134,7 +134,7 @@ class DynamicEntityFormTypeReadOnlyTest extends TestCase
     }
 
     /**
-     * @param \ArrayObject<string, array<string, mixed>> $added field name => options passed to add()
+    * @param \ArrayObject<string, array<array-key, mixed>> $added field name => options passed to add()
      * @return FormBuilderInterface<object|null>&MockObject
      */
     private function makeBuilder(\ArrayObject $added): FormBuilderInterface
@@ -149,6 +149,14 @@ class DynamicEntityFormTypeReadOnlyTest extends TestCase
             });
 
         return $builder;
+    }
+
+    /**
+     * @return \ArrayObject<string, array<array-key, mixed>>
+     */
+    private function createAddedCollector(): \ArrayObject
+    {
+        return new \ArrayObject();
     }
 
     /**

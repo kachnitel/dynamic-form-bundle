@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-10-28 21:41:39",
+    "generated_at": "2026-10-28 21:45:17",
     "tests": {
         "count": 294,
         "assertions": 736,
@@ -12,7 +12,7 @@
     },
     "phpstan": {
         "level": 10,
-        "status": "errors"
+        "status": "pass"
     },
     "requirements": {
         "php": ">=8.2",
