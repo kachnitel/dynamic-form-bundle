@@ -117,8 +117,10 @@ class DynamicEntityFormTypeReadOnlyTest extends TestCase
         $this->makeFormType(readOnly: ['owner'])
             ->buildForm($this->makeBuilder($added), ['entity_class' => ReadOnlyFixtureEntity::class]);
 
-        $this->assertArrayNotHasKey('allow_add', $added['owner']);
-        $this->assertArrayNotHasKey('allow_delete', $added['owner']);
+        $addedOptions = $added->getArrayCopy();
+        $this->assertArrayHasKey('owner', $addedOptions);
+        $this->assertArrayNotHasKey('allow_add', $addedOptions['owner']);
+        $this->assertArrayNotHasKey('allow_delete', $addedOptions['owner']);
     }
 
     #[Test]
