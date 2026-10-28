@@ -4,6 +4,22 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.2.0](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.1.0...v0.2.0) (2026-10-28)
+
+### Features
+
+
+##### Editability
+
+* Add isReadOnly() to render fields as disabled ([1e7716](https://github.com/kachnitel/dynamic-form-bundle/commit/1e7716b343bbac6661f338109134ef50e9733f08))
+
+##### Form
+
+* Drop late-discovered read-only fields in the editability listener ([388197](https://github.com/kachnitel/dynamic-form-bundle/commit/3881973562fae4d44f2fcb0694481a1b3e443dd9))
+
+
+---
+
 ## [0.1.0](https://github.com/kachnitel/dynamic-form-bundle/compare/v0.0.4...v0.1.0) (2026-08-25)
 
 ### Features
